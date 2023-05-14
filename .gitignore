@@ -8,3 +8,4 @@ android-build
 *.jks
 *.apk
 *.apk.idsig
+android_deployment_settings.json
