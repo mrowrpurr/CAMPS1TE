@@ -3,7 +3,7 @@
 #include <QApplication>
 #include <memory>
 
-#include "MiscExamples/MapView.h"
+#include "MiscExamples/ImagesInLists.h"
 
 namespace Camps1te::Editor {
 
@@ -13,7 +13,7 @@ namespace Camps1te::Editor {
             // QApplication app(argc, argv);
 
             // Do things!
-            MiscExamples::MapView::Run(argc, argv);
+            MiscExamples::ImagesInLists::Run(argc, argv);
 
             // return app.exec();
             return true;
