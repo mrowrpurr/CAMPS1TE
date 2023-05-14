@@ -1,0 +1,10 @@
+compile_commands
+bin
+build
+.xmake
+*.dll
+*.exe
+android-build
+*.jks
+*.apk
+*.apk.idsig
