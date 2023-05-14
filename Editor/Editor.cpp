@@ -1,10 +1,3 @@
-#include <QApplication>
-#include <QMessageBox>
+#include "Camps1te\Editor\Main.h"
 
-int main(int argc, char* argv[]) {
-    QApplication app(argc, argv);
-
-    QMessageBox::information(nullptr, "Hello, Qt!", "Hello, world!");
-
-    return app.exec();
-}
+int main(int argc, char* argv[]) { return Camps1te::Editor::Main(argc, argv); }

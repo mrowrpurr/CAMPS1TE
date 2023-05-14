@@ -1,0 +1,13 @@
+QWidget {
+    color: red;
+}
+
+ApplicationWindow {
+    background-color: lightblue;
+}
+
+Label {
+    color: white;
+    font-weight: bold;
+    text-align: center;
+}

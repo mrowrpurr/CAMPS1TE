@@ -2,6 +2,7 @@
 function add_qt()
     add_rules("qt.application")
     add_rules("qt.qrc")
+    add_rules("qt.moc")
 
     -- Path to your Qt installation folder, including the version
     -- e.g. C:\Qt\5.12.0\msvc2017_64 or /usr/local/Qt-5.12.0
@@ -17,10 +18,13 @@ function add_qt()
         add_includedirs(path.join(qt_include, "QtCore"))
         add_includedirs(path.join(qt_include, "QtGui"))
         add_includedirs(path.join(qt_include, "QtWidgets"))
+        add_includedirs(path.join(qt_include, "QtQuick"))
+        add_includedirs(path.join(qt_include, "QtQml"))
+        add_includedirs(path.join(qt_include, "QtQuickWidgets"))
 
         -- link
         add_linkdirs(qt_lib)
-        add_links("Qt6Core", "Qt6Gui", "Qt6Widgets")
+        add_links("Qt6Core", "Qt6Gui", "Qt6Widgets", "Qt6Quick", "Qt6Qml", "Qt6QuickWidgets")
 
         -- compiler flag
         add_cxflags("/Zc:__cplusplus")
@@ -36,15 +40,21 @@ function add_qt()
         add_includedirs(path.join(qt_lib, "QtCore.framework", "Headers"))
         add_includedirs(path.join(qt_lib, "QtGui.framework", "Headers"))
         add_includedirs(path.join(qt_lib, "QtWidgets.framework", "Headers"))
+        add_includedirs(path.join(qt_lib, "QtQuick.framework", "Headers"))
+        add_includedirs(path.join(qt_lib, "QtQml.framework", "Headers"))
+        add_includedirs(path.join(qt_lib, "QtQuickWidgets.framework", "Headers"))
 
         -- link
         add_linkdirs(path.join(qt_lib, "QtCore.framework"))
         add_linkdirs(path.join(qt_lib, "QtGui.framework"))
         add_linkdirs(path.join(qt_lib, "QtWidgets.framework"))
+        add_linkdirs(path.join(qt_lib, "QtQuick.framework"))
+        add_linkdirs(path.join(qt_lib, "QtQml.framework"))
+        add_linkdirs(path.join(qt_lib, "QtQuickWidgets.framework"))
 
         -- frameworks
         add_ldflags("-F" .. qt_lib_dir)
-        add_frameworks("QtCore", "QtGui", "QtWidgets")
+        add_frameworks("QtCore", "QtGui", "QtWidgets", "QtQuick", "QtQml", "QtQuickWidgets")
 
     elseif is_host("linux") then
         -- TODO

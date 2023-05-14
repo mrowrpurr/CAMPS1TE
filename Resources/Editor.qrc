@@ -1,5 +1,7 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
+    <file alias="editor.qss">Editor/Editor.qss</file>
+    <file alias="logo.png">Logo/Camps1te 256.png</file>
 </qresource>
 </RCC>
