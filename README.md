@@ -2,4 +2,6 @@
 
 # CAMPS1TE
 
-> _MP's 1st Test Engine_ (**experimentation**)
+> _MP's 1st Test Engine._
+>
+> _Purely for experimentation purposes._
