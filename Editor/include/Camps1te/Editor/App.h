@@ -107,22 +107,26 @@ namespace Camps1te::Editor {
 
         std::string GetCurrentlySelectedColorNameOrEmpty() {
             if (colorPaletteTable->selectionModel()->selectedRows().empty()) return {};
-            return colorPaletteTable->selectionModel()
-                ->selectedRows()
-                .first()
-                .data(Qt::DisplayRole)
-                .toString()
-                .toStdString();
+            auto colorName = colorPaletteTable->selectionModel()
+                                 ->selectedRows()
+                                 .first()
+                                 .data(Qt::DisplayRole)
+                                 .toString()
+                                 .toStdString();
+            if (colorName == "<None>") return {};
+            else return colorName;
         }
 
         std::string GetCurrentlySelectedTextureNameOrEmpty() {
             if (texturesTable->selectionModel()->selectedRows().empty()) return {};
-            return texturesTable->selectionModel()
-                ->selectedRows()
-                .first()
-                .data(Qt::DisplayRole)
-                .toString()
-                .toStdString();
+            auto textureName = texturesTable->selectionModel()
+                                   ->selectedRows()
+                                   .first()
+                                   .data(Qt::DisplayRole)
+                                   .toString()
+                                   .toStdString();
+            if (textureName == "<None>") return {};
+            else return textureName;
         }
 
         nlohmann::json GetMapCellInfo(int x, int y) {
