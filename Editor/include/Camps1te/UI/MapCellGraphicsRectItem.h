@@ -35,11 +35,8 @@ namespace Camps1te::UI {
             Q_UNUSED(option);
             Q_UNUSED(widget);
 
-            if (_images.empty()) {
-                this->setPen(QPen(Qt::white));
-                QGraphicsRectItem::paint(painter, option, widget);
-                return;
-            }
+            this->setPen(QPen(Qt::white));
+            QGraphicsRectItem::paint(painter, option, widget);
 
             for (auto& image : _images) {
                 QImage scaledImage = image.scaled(rect().size().toSize());
