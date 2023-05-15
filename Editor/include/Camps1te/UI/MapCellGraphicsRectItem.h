@@ -19,6 +19,11 @@ namespace Camps1te::UI {
             : QGraphicsRectItem(x, y, w, h, parent) {}
 
         void AddImage(const QImage& image) { _images.push_back(image); }
+        void RemoveImageAt(int index) {
+            //
+            _images.erase(_images.begin() + index);
+            //
+        }
 
         void OnClick(std::function<void()> handler) { _clickHandlers.push_back(handler); }
         void Click() {
@@ -30,11 +35,8 @@ namespace Camps1te::UI {
             Q_UNUSED(option);
             Q_UNUSED(widget);
 
-            if (_images.empty()) {
-                this->setPen(QPen(Qt::white));
-                QGraphicsRectItem::paint(painter, option, widget);
-                return;
-            }
+            this->setPen(QPen(Qt::white));
+            QGraphicsRectItem::paint(painter, option, widget);
 
             for (auto& image : _images) {
                 QImage scaledImage = image.scaled(rect().size().toSize());

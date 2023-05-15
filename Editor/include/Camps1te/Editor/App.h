@@ -9,12 +9,17 @@
 #include <QDockWidget>
 #include <QFile>
 #include <QFileSystemWatcher>
+#include <QFormLayout>
+#include <QGroupBox>
 #include <QHeaderView>
 #include <QIcon>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
 #include <QStandardItemModel>
@@ -22,6 +27,9 @@
 #include <QTextStream>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <unordered_map>
+#include <vector>
 
 #include "../UI/MapCellGraphicsRectItem.h"
 #include "../UI/MapGraphicsScene.h"
@@ -36,9 +44,15 @@ namespace Camps1te::Editor {
 
     nlohmann::json _jsonDocument;
 
-    QTableView*        colorPaletteTable;
-    QTableView*        texturesTable;
-    QFileSystemWatcher qssFileWatcher;
+    UI::MapGraphicsScene* scene;
+    QTableView*           colorPaletteTable;
+    QTableView*           texturesTable;
+    QFileSystemWatcher    qssFileWatcher;
+    QLabel*               cellProperties_coordinate;
+    QGroupBox*            cellLayersGroupBox;
+    QFormLayout*          cellProperties_generalFormLayout;
+    QFormLayout*          cellProperties_layersFormLayout;
+    std::unordered_map<int, std::unordered_map<int, UI::MapCellGraphicsRectItem*>> sceneCells;
 
     class App {
         nlohmann::json LoadJson() {
@@ -76,7 +90,7 @@ namespace Camps1te::Editor {
             if (type == "path") {
                 auto path = image["source"]["data"].get<std::string>();
                 rect->AddImage(QImage(path.c_str()));
-                rect->update();
+                rect->update();  // <-- do we need this?
             }
         }
 
@@ -137,15 +151,16 @@ namespace Camps1te::Editor {
             auto tiles = GetMapInfo()["tiles"];
             auto key   = string_format("{},{}", x, y);
             if (tiles.contains(key)) return tiles[key];
+            else return {};
         }
 
         void UpdateMapViewTexture(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
             auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
+            if (selectedTextureName.empty()) return;
 
             auto textureInfo = GetMyModData()["textures"][selectedTextureName];
             auto textureType = textureInfo["source"]["type"].get<std::string>();
             auto texturePath = textureInfo["source"]["data"].get<std::string>();
-            mapCellRect->AddImage(QImage(texturePath.c_str()));
 
             auto mapCellInfo = GetMapCellInfo(x, y);
             if (mapCellInfo.is_null()) {
@@ -153,14 +168,15 @@ namespace Camps1te::Editor {
                 return;
             }
             if (!mapCellInfo.contains("layers")) mapCellInfo["layers"] = nlohmann::json::array();
-            mapCellInfo["layers"].push_back({
+            auto newLayer = nlohmann::json{
                 {"type", "image"                                                },
                 {"data", {{"source", {{"type", "path"}, {"data", texturePath}}}}},
-            });
+            };
+            mapCellInfo["layers"].push_back(newLayer);
 
-            RenderTile(mapCellRect, mapCellInfo);
             _jsonDocument["data"]["my mod"]["maps"]["First Map"]["tiles"]
                          [string_format("{},{}", x, y)] = mapCellInfo;
+            RenderTileImage(mapCellRect, newLayer["data"]);
             SaveJson();
         }
 
@@ -202,7 +218,83 @@ namespace Camps1te::Editor {
             SaveJson();
         }
 
+        void ClearChildren(QWidget* widget) {
+            QLayoutItem* item;
+            while ((item = widget->layout()->takeAt(0)) != nullptr) {
+                delete item->widget();
+                delete item;
+            }
+        }
+
+        void UpdateCellProperties(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            cellProperties_coordinate->setText(string_format("{},{}", x, y).c_str());
+            ClearChildren(cellLayersGroupBox);
+            auto mapCellInfo = GetMapCellInfo(x, y);
+            if (mapCellInfo.is_null()) return;
+            if (!mapCellInfo.contains("layers")) return;
+            for (auto& layer : mapCellInfo["layers"]) {
+                auto layerType = layer["type"].get<std::string>();
+                if (layerType == "image") {
+                    auto layerData = layer["data"];
+                    auto layerPath = layerData["source"]["data"].get<std::string>();
+
+                    // THIS BUTTON DOESN'T WORK:
+                    auto* button = new QPushButton("X", cellLayersGroupBox);
+                    button->setFlat(false);
+                    auto* label = new QLabel(layerPath.c_str(), cellLayersGroupBox);
+                    cellProperties_layersFormLayout->addRow(label, button);
+
+                    // Whenever you click on this label, we call RemoveIndexFromLayersOfMapCell
+                    // with the index of this layer.
+                    QObject::connect(
+                        button, &QPushButton::clicked,
+                        [this, x, y, layer, mapCellRect] {
+                            auto mapCellInfo = GetMapCellInfo(x, y);
+                            if (mapCellInfo.is_null()) return;
+                            if (!mapCellInfo.contains("layers")) return;
+                            auto index = std::distance(
+                                mapCellInfo["layers"].begin(),
+                                std::find(
+                                    mapCellInfo["layers"].begin(), mapCellInfo["layers"].end(),
+                                    layer
+                                )
+                            );
+                            this->RemoveIndexFromLayersOfMapCell(mapCellRect, x, y, index);
+                        }
+                    );
+
+                } else if (layerType == "color") {
+                    auto layerData = layer["data"];
+                    auto layerColor =
+                        QColor(layerData[0], layerData[1], layerData[2], layerData[3]);
+                    auto* label = new QLabel(layerColor.name());
+                    label->setStyleSheet(
+                        string_format("background-color: %s;", layerColor.name().toStdString())
+                            .c_str()
+                    );
+                    cellLayersGroupBox->layout()->addWidget(label);
+                }
+            }
+        }
+
+        void RemoveIndexFromLayersOfMapCell(
+            UI::MapCellGraphicsRectItem* mapCellRect, int x, int y, int index
+        ) {
+            auto mapCellInfo = GetMapCellInfo(x, y);
+            if (mapCellInfo.is_null()) return;
+            if (!mapCellInfo.contains("layers")) return;
+            mapCellInfo["layers"].erase(mapCellInfo["layers"].begin() + index);
+            _jsonDocument["data"]["my mod"]["maps"]["First Map"]["tiles"]
+                         [string_format("{},{}", x, y)] = mapCellInfo;
+            SaveJson();
+            UpdateCellProperties(mapCellRect, x, y);
+            // auto* cell = sceneCells[x][y];
+            mapCellRect->RemoveImageAt(index);
+            mapCellRect->update();
+        }
+
         void OnMapViewCellClick(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            UpdateCellProperties(mapCellRect, x, y);
             auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
             auto selectedColorName   = GetCurrentlySelectedColorNameOrEmpty();
             if (!selectedTextureName.empty()) {
@@ -301,9 +393,9 @@ namespace Camps1te::Editor {
             colorPaletteDock->setWidget(colorPaletteTable);
 
             // DOCKABLE MAP VIEW
-            auto  cellSize = 128;
-            auto  padding  = 0;
-            auto* scene    = new UI::MapGraphicsScene();
+            auto cellSize = 128;
+            auto padding  = 0;
+            scene         = new UI::MapGraphicsScene();
             for (int i = 0; i < columns; i++) {
                 for (int j = 0; j < rows; j++) {
                     auto* rect = new UI::MapCellGraphicsRectItem(
@@ -316,6 +408,7 @@ namespace Camps1te::Editor {
                     }
                     rect->OnClick([i, j, this, rect]() { this->OnMapViewCellClick(rect, j, i); });
                     scene->addItem(rect);
+                    sceneCells[j][i] = rect;
                 }
             }
 
@@ -345,9 +438,33 @@ namespace Camps1te::Editor {
                 QMessageBox::information(&mainWindow, "About", "CAMPS1TE experimental");
             });
 
+            // General
+            cellProperties_generalFormLayout = new QFormLayout;
+            auto* generalGroupBox            = new QGroupBox("General");
+            cellProperties_coordinate        = new QLabel;
+            cellProperties_generalFormLayout->addRow("Coordinates", cellProperties_coordinate);
+            generalGroupBox->setLayout(cellProperties_generalFormLayout);
+
+            // Layers
+            cellProperties_layersFormLayout = new QFormLayout;
+            cellLayersGroupBox              = new QGroupBox("Layers");
+            cellLayersGroupBox->setLayout(cellProperties_layersFormLayout);
+
+            // QWidget for all the groups
+            auto* cellPropertiesWidget  = new QWidget();
+            auto* cellPropertiesVLayout = new QVBoxLayout(cellPropertiesWidget);
+            cellPropertiesVLayout->addWidget(generalGroupBox);
+            cellPropertiesVLayout->addWidget(cellLayersGroupBox);
+            cellPropertiesVLayout->addStretch(1);
+
+            auto someDockThing = new QDockWidget("Map Cell Properties", &mainWindow);
+            someDockThing->setWidget(cellPropertiesWidget);
+            //
+
             mainWindow.setCentralWidget(mapView);
             mainWindow.addDockWidget(Qt::RightDockWidgetArea, colorPaletteDock);
             mainWindow.addDockWidget(Qt::LeftDockWidgetArea, texturesDock);
+            mainWindow.addDockWidget(Qt::LeftDockWidgetArea, someDockThing);
             mainWindow.show();
 
             return app.exec();
