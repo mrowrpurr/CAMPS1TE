@@ -32,7 +32,10 @@ namespace Camps1te::UI {
             Q_UNUSED(option);
             Q_UNUSED(widget);
 
-            QGraphicsRectItem::paint(painter, option, widget);
+            if (_image.isNull()) {
+                QGraphicsRectItem::paint(painter, option, widget);
+                return;
+            }
 
             // Scale image to rect size
             QImage scaledImage = _image.scaled(rect().size().toSize());
