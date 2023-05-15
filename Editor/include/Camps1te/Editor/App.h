@@ -156,11 +156,11 @@ namespace Camps1te::Editor {
 
         void UpdateMapViewTexture(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
             auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
+            if (selectedTextureName.empty()) return;
 
             auto textureInfo = GetMyModData()["textures"][selectedTextureName];
             auto textureType = textureInfo["source"]["type"].get<std::string>();
             auto texturePath = textureInfo["source"]["data"].get<std::string>();
-            // mapCellRect->AddImage(QImage(texturePath.c_str()));
 
             auto mapCellInfo = GetMapCellInfo(x, y);
             if (mapCellInfo.is_null()) {
@@ -168,14 +168,15 @@ namespace Camps1te::Editor {
                 return;
             }
             if (!mapCellInfo.contains("layers")) mapCellInfo["layers"] = nlohmann::json::array();
-            mapCellInfo["layers"].push_back({
+            auto newLayer = nlohmann::json{
                 {"type", "image"                                                },
                 {"data", {{"source", {{"type", "path"}, {"data", texturePath}}}}},
-            });
+            };
+            mapCellInfo["layers"].push_back(newLayer);
 
             _jsonDocument["data"]["my mod"]["maps"]["First Map"]["tiles"]
                          [string_format("{},{}", x, y)] = mapCellInfo;
-            RenderTile(mapCellRect, mapCellInfo);
+            RenderTileImage(mapCellRect, newLayer["data"]);
             SaveJson();
         }
 
