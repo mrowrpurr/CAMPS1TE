@@ -8,7 +8,14 @@
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFile>
+#include <QHeaderView>
+#include <QIcon>
 #include <QMainWindow>
+#include <QMessageBox>
+#include <QSortFilterProxyModel>
+#include <QStandardItem>
+#include <QStandardItemModel>
+#include <QTableView>
 #include <memory>
 #include <nlohmann/json.hpp>
 
@@ -43,14 +50,43 @@ namespace Camps1te::Editor {
             mainWindow.setMinimumSize(1920, 1080);
 
             // DOCKABLE COLOR PALETTE
-            QComboBox colorPaletteOptions;
-            colorPaletteOptions.addItem("Choose your color");
-            colorPaletteOptions.addItem("Red");
-            colorPaletteOptions.addItem("Green");
-            colorPaletteOptions.addItem("Blue");
+
+            // Let's make it a table so we can show images later!
+            // First, here are 4 QIcon for Red, Green, and Blue
+            QColor  red(255, 0, 0);
+            QPixmap redPixmap(128, 128);
+            redPixmap.fill(red);
+
+            QColor  green(0, 255, 0);
+            QPixmap greenPixmap(128, 128);
+            greenPixmap.fill(green);
+
+            QColor  blue(0, 0, 255);
+            QPixmap bluePixmap(128, 128);
+            bluePixmap.fill(blue);
+
+            // Now make the model
+            QStandardItemModel model(0, 2);
+            model.setHeaderData(0, Qt::Horizontal, "Name");
+            model.setHeaderData(1, Qt::Horizontal, "Preview");
+            model.appendRow(new QStandardItem(QIcon(redPixmap), "Red"));
+            model.appendRow(new QStandardItem(QIcon(greenPixmap), "Green"));
+            model.appendRow(new QStandardItem(QIcon(bluePixmap), "Blue"));
+
+            // Now a table...
+            auto* colorPaletteTable = new QTableView();
+            colorPaletteTable->setModel(&model);
+            colorPaletteTable->setSortingEnabled(true);
+            colorPaletteTable->sortByColumn(0, Qt::AscendingOrder);
+            colorPaletteTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+            colorPaletteTable->setSelectionMode(QAbstractItemView::SingleSelection);
+            colorPaletteTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            colorPaletteTable->horizontalHeader()->setStretchLastSection(true);
+            colorPaletteTable->verticalHeader()->hide();
+
             auto colorPaletteDock = new QDockWidget("Color Palette", &mainWindow);
             colorPaletteDock->setMinimumWidth(350);
-            colorPaletteDock->setWidget(&colorPaletteOptions);
+            colorPaletteDock->setWidget(colorPaletteTable);
 
             // DOCKABLE MAP VIEW
             auto* scene = new UI::MapGraphicsScene();
@@ -69,9 +105,30 @@ namespace Camps1te::Editor {
                             rect->setBrush(QBrush(QColor(red, green, blue, alpha)));
                         }
                     }
+
+                    rect->OnClick([i, j, &colorPaletteTable]() {
+                        if (colorPaletteTable->selectionModel()->selectedRows().empty()) {
+                            QMessageBox::information(
+                                nullptr, "Clicked", string_format("No color selected").c_str()
+                            );
+                            return;
+                        }
+
+                        auto colorName = colorPaletteTable->selectionModel()
+                                             ->selectedRows()
+                                             .first()
+                                             .data(0)
+                                             .toString()
+                                             .toStdString();
+                        QMessageBox::information(
+                            nullptr, "Clicked",
+                            string_format("Clicked on {},{} with color {}", i, j, colorName).c_str()
+                        );
+                    });
                     scene->addItem(rect);
                 }
             }
+
             auto* mapView = new UI::MapGraphicsView();
             mapView->setScene(scene);
 
