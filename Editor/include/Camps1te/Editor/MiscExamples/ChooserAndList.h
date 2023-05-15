@@ -10,7 +10,7 @@
 
 namespace Camps1te::Editor::MiscExamples::ChooserAndList {
 
-    void Run(int argc, char* argv[]) {
+    int Run(int argc, char* argv[]) {
         QApplication app(argc, argv);
 
         // Create main window and layout
@@ -58,6 +58,6 @@ namespace Camps1te::Editor::MiscExamples::ChooserAndList {
 
         window.show();
 
-        app.exec();
+        return app.exec();
     }
 }

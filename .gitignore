@@ -9,3 +9,4 @@ android-build
 *.apk
 *.apk.idsig
 android_deployment_settings.json
+.DS_Store
