@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QDockWidget>
 #include <QFile>
+#include <QFileSystemWatcher>
 #include <QHeaderView>
 #include <QIcon>
 #include <QMainWindow>
@@ -18,6 +19,7 @@
 #include <QStandardItem>
 #include <QStandardItemModel>
 #include <QTableView>
+#include <QTextStream>
 #include <memory>
 #include <nlohmann/json.hpp>
 
@@ -30,11 +32,13 @@
 namespace Camps1te::Editor {
     // constexpr auto jsonFilePath = ":/data1.json";
     constexpr auto jsonFilePath = "../../../../Resources/Data/DataFile1.json";
+    constexpr auto qssFilePath  = "../../../../Resources/Editor/Editor.qss";
 
     nlohmann::json _jsonDocument;
 
-    QTableView* colorPaletteTable;
-    QTableView* texturesTable;
+    QTableView*        colorPaletteTable;
+    QTableView*        texturesTable;
+    QFileSystemWatcher qssFileWatcher;
 
     class App {
         nlohmann::json LoadJson() {
@@ -209,6 +213,23 @@ namespace Camps1te::Editor {
             }
         }
 
+        void StyleApplication(QApplication& app) {
+            // Load the current stylesheet
+            QFile file(qssFilePath);
+            file.open(QFile::ReadOnly);
+            QString styleSheet = QLatin1String(file.readAll());
+            app.setStyleSheet(styleSheet);
+
+            // Watch for changes to stylesheet and reload on change
+            qssFileWatcher.addPath(qssFilePath);
+            QObject::connect(&qssFileWatcher, &QFileSystemWatcher::fileChanged, [&]() {
+                QFile file(qssFilePath);
+                file.open(QFile::ReadOnly);
+                QString styleSheet = QLatin1String(file.readAll());
+                app.setStyleSheet(styleSheet);
+            });
+        }
+
     public:
         int Run(int argc, char* argv[]) {
             // DATA
@@ -218,7 +239,8 @@ namespace Camps1te::Editor {
 
             // APP AND WINDOW
             QApplication app(argc, argv);
-            QMainWindow  mainWindow;
+            StyleApplication(app);
+            QMainWindow mainWindow;
             mainWindow.setWindowTitle(mapInfo.value("name", "").c_str());
             mainWindow.setMinimumSize(1024, 768);
 

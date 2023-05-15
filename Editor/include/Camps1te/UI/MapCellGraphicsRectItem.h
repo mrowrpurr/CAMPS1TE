@@ -33,6 +33,7 @@ namespace Camps1te::UI {
             Q_UNUSED(widget);
 
             if (_image.isNull()) {
+                this->setPen(QPen(Qt::white));
                 QGraphicsRectItem::paint(painter, option, widget);
                 return;
             }
