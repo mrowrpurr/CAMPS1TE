@@ -2,6 +2,8 @@ add_rules("mode.debug", "mode.release")
 
 set_languages("c++20")
 
+add_repositories("MrowrLib https://github.com/MrowrLib/Packages.git")
+
 if is_host("windows") then
     set_toolchains("msvc")
 elseif is_host("macosx") then
