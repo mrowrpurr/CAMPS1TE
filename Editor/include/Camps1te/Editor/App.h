@@ -26,10 +26,12 @@
 #include "../UI/MapGraphicsView.h"
 
 namespace Camps1te::Editor {
+    // constexpr auto jsonFilePath = ":/data1.json";
+    constexpr auto jsonFilePath = "../../../../Resources/Data/DataFile1.json";
 
     class App {
         nlohmann::json LoadJson() {
-            QFile jsonFile{":/data1.json"};
+            QFile jsonFile{jsonFilePath};
             jsonFile.open(QIODevice::ReadOnly);
             auto jsonText = jsonFile.readAll().toStdString();
             jsonFile.close();
@@ -37,6 +39,36 @@ namespace Camps1te::Editor {
         }
 
         auto GetMapInfo() { return LoadJson()["data"]["my mod"]["maps"]["First Map"]; }
+
+        void RenderTileColor(UI::MapCellGraphicsRectItem* rect, const nlohmann::json& color) {
+            auto red   = color[0];
+            auto green = color[1];
+            auto blue  = color[2];
+            auto alpha = color[3];
+            rect->setBrush(QBrush(QColor(red, green, blue, alpha)));
+        }
+
+        void RenderTileImage(UI::MapCellGraphicsRectItem* rect, const nlohmann::json& image) {
+            auto type = image["source"]["type"].get<std::string>();
+            if (type == "path") {
+                auto path = image["source"]["data"].get<std::string>();
+                // rect->setBrush(QBrush(QImage(path.c_str())));
+                rect->SetImage(QImage(path.c_str()));
+            }
+        }
+
+        void RenderTileLayer(UI::MapCellGraphicsRectItem* rect, const nlohmann::json& layer) {
+            auto type = layer["type"].get<std::string>();
+            if (type == "color") RenderTileColor(rect, layer["data"]);
+            else if (type == "image") RenderTileImage(rect, layer["data"]);
+        }
+
+        void RenderTile(UI::MapCellGraphicsRectItem* rect, const nlohmann::json& tile) {
+            if (tile.contains("layers")) {
+                auto layers = tile["layers"];
+                for (auto& layer : layers) RenderTileLayer(rect, layer);
+            }
+        }
 
     public:
         int Run(int argc, char* argv[]) {
@@ -97,14 +129,7 @@ namespace Camps1te::Editor {
                     auto  key  = string_format("{},{}", j, i);
                     if (mapInfo["tiles"].contains(key)) {
                         auto tile = mapInfo["tiles"][key];
-                        if (tile.contains("color")) {
-                            auto color = tile["color"].get<std::vector<int>>();
-                            auto red   = color[0];
-                            auto green = color[1];
-                            auto blue  = color[2];
-                            auto alpha = color[3];
-                            rect->setBrush(QBrush(QColor(red, green, blue, alpha)));
-                        }
+                        RenderTile(rect, tile);
                     }
 
                     rect->OnClick([i, j, &colorPaletteTable]() {
