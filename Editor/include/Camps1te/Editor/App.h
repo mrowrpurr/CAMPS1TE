@@ -64,7 +64,6 @@ namespace Camps1te::Editor {
             auto type = image["source"]["type"].get<std::string>();
             if (type == "path") {
                 auto path = image["source"]["data"].get<std::string>();
-                // rect->setBrush(QBrush(QImage(path.c_str())));
                 rect->SetImage(QImage(path.c_str()));
             }
         }
@@ -115,6 +114,53 @@ namespace Camps1te::Editor {
                 .data(Qt::DisplayRole)
                 .toString()
                 .toStdString();
+        }
+
+        nlohmann::json GetMapCellInfo(int x, int y) {
+            auto tiles = GetMapInfo()["tiles"];
+            auto key   = string_format("{},{}", x, y);
+            if (tiles.contains(key)) return tiles[key];
+        }
+
+        void OnMapViewCellClick(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            auto selectedColorName = GetCurrentlySelectedColorNameOrEmpty();
+            if (selectedColorName.empty()) {
+                msgbox("No color selected!");
+                return;
+            }
+
+            std::vector<int> colors;
+            if (selectedColorName == "Red") colors = {255, 0, 0, 255};
+            else if (selectedColorName == "Green") colors = {0, 255, 0, 255};
+            else if (selectedColorName == "Blue") colors = {0, 0, 255, 255};
+            else if (selectedColorName == "Yellow") colors = {255, 255, 0, 255};
+            else if (selectedColorName == "Cyan") colors = {0, 255, 255, 255};
+            else if (selectedColorName == "Magenta") colors = {255, 0, 255, 255};
+            else if (selectedColorName == "Black") colors = {0, 0, 0, 255};
+            else if (selectedColorName == "White") colors = {255, 255, 255, 255};
+            else if (selectedColorName == "Transparent") colors = {0, 0, 0, 0};
+            else {
+                msgbox("Unknown color: {}", selectedColorName);
+                return;
+            }
+
+            auto mapCellInfo = GetMapCellInfo(x, y);
+            if (mapCellInfo.is_null()) {
+                msgbox("No map cell info at {},{}", x, y);
+                return;
+            }
+
+            // Totally replace all layers with this color!
+            if (!mapCellInfo.contains("layers")) {
+                //
+                mapCellInfo["layers"] = nlohmann::json::array();
+            }
+            mapCellInfo.clear();
+            mapCellInfo["layers"].push_back({
+                {"type", "color"},
+                {"data", colors }
+            });
+            RenderTile(mapCellRect, mapCellInfo);
         }
 
     public:
@@ -200,16 +246,7 @@ namespace Camps1te::Editor {
                         auto tile = mapInfo["tiles"][key];
                         RenderTile(rect, tile);
                     }
-
-                    rect->OnClick([i, j, this]() {
-                        auto selectedColorName   = GetCurrentlySelectedColorNameOrEmpty();
-                        auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
-
-                        msgbox(
-                            "Clicked on {},{} with color {} or texture {}", i, j, selectedColorName,
-                            selectedTextureName
-                        );
-                    });
+                    rect->OnClick([i, j, this, rect]() { this->OnMapViewCellClick(rect, j, i); });
                     scene->addItem(rect);
                 }
             }
