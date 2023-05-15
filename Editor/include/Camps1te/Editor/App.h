@@ -1,10 +1,14 @@
 #pragma once
 
 #include <_Log_.h>
+#include <fmt/format.h>
 #include <string_format.h>
 
 #include <QApplication>
+#include <QComboBox>
+#include <QDockWidget>
 #include <QFile>
+#include <QMainWindow>
 #include <memory>
 #include <nlohmann/json.hpp>
 
@@ -15,30 +19,40 @@
 namespace Camps1te::Editor {
 
     class App {
-        nlohmann::json _json;
-
-        void LoadJson() {
-            _Log_("App::LoadJson()");
+        nlohmann::json LoadJson() {
             QFile jsonFile{":/data1.json"};
             jsonFile.open(QIODevice::ReadOnly);
             auto jsonText = jsonFile.readAll().toStdString();
             jsonFile.close();
-            _json = nlohmann::json::parse(jsonText);
-            _Log_("App::LoadJson() - done");
+            return nlohmann::json::parse(jsonText);
         }
+
+        auto GetMapInfo() { return LoadJson()["data"]["my mod"]["maps"]["First Map"]; }
 
     public:
         int Run(int argc, char* argv[]) {
-            _Log_("App::Run()");
-            LoadJson();
-
-            auto mapInfo = _json["data"]["my mod"]["maps"]["First Map"];
-            auto name    = mapInfo.value("name", "");
+            // DATA
+            auto mapInfo = GetMapInfo();
             auto columns = mapInfo.value("columns", 0);
             auto rows    = mapInfo.value("rows", 0);
 
+            // APP AND WINDOW
             QApplication app(argc, argv);
+            QMainWindow  mainWindow;
+            mainWindow.setWindowTitle(mapInfo.value("name", "").c_str());
+            mainWindow.setMinimumSize(1920, 1080);
 
+            // DOCKABLE COLOR PALETTE
+            QComboBox colorPaletteOptions;
+            colorPaletteOptions.addItem("Choose your color");
+            colorPaletteOptions.addItem("Red");
+            colorPaletteOptions.addItem("Green");
+            colorPaletteOptions.addItem("Blue");
+            auto colorPaletteDock = new QDockWidget("Color Palette", &mainWindow);
+            colorPaletteDock->setMinimumWidth(350);
+            colorPaletteDock->setWidget(&colorPaletteOptions);
+
+            // DOCKABLE MAP VIEW
             auto* scene = new UI::MapGraphicsScene();
             for (int i = 0; i < columns; i++) {
                 for (int j = 0; j < rows; j++) {
@@ -58,11 +72,12 @@ namespace Camps1te::Editor {
                     scene->addItem(rect);
                 }
             }
+            auto* mapView = new UI::MapGraphicsView();
+            mapView->setScene(scene);
 
-            auto* view = new UI::MapGraphicsView();
-            view->setScene(scene);
-            view->setWindowTitle(name.c_str());
-            view->show();
+            mainWindow.setCentralWidget(mapView);
+            mainWindow.addDockWidget(Qt::RightDockWidgetArea, colorPaletteDock);
+            mainWindow.show();
 
             return app.exec();
         }
