@@ -46,6 +46,7 @@ namespace Camps1te::Editor {
     QTableView*        texturesTable;
     QFileSystemWatcher qssFileWatcher;
     QLabel*            cellProperties_coordinate;
+    QGroupBox*         cellLayersGroupBox;
 
     class App {
         nlohmann::json LoadJson() {
@@ -210,8 +211,43 @@ namespace Camps1te::Editor {
             SaveJson();
         }
 
-        void OnMapViewCellClick(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+        void ClearChildren(QWidget* widget) {
+            QLayoutItem* item;
+            while ((item = widget->layout()->takeAt(0)) != nullptr) {
+                delete item->widget();
+                delete item;
+            }
+        }
+
+        void UpdateCellProperties(int x, int y) {
             cellProperties_coordinate->setText(string_format("{},{}", x, y).c_str());
+            ClearChildren(cellLayersGroupBox);
+            auto mapCellInfo = GetMapCellInfo(x, y);
+            if (mapCellInfo.is_null()) return;
+            if (!mapCellInfo.contains("layers")) return;
+            for (auto& layer : mapCellInfo["layers"]) {
+                auto layerType = layer["type"].get<std::string>();
+                if (layerType == "image") {
+                    auto  layerData = layer["data"];
+                    auto  layerPath = layerData["source"]["data"].get<std::string>();
+                    auto* label     = new QLabel(layerPath.c_str());
+                    cellLayersGroupBox->layout()->addWidget(label);
+                } else if (layerType == "color") {
+                    auto layerData = layer["data"];
+                    auto layerColor =
+                        QColor(layerData[0], layerData[1], layerData[2], layerData[3]);
+                    auto* label = new QLabel(layerColor.name());
+                    label->setStyleSheet(
+                        string_format("background-color: %s;", layerColor.name().toStdString())
+                            .c_str()
+                    );
+                    cellLayersGroupBox->layout()->addWidget(label);
+                }
+            }
+        }
+
+        void OnMapViewCellClick(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            UpdateCellProperties(x, y);
             auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
             auto selectedColorName   = GetCurrentlySelectedColorNameOrEmpty();
             if (!selectedTextureName.empty()) {
@@ -354,15 +390,27 @@ namespace Camps1te::Editor {
                 QMessageBox::information(&mainWindow, "About", "CAMPS1TE experimental");
             });
 
-            // ...
-            QFormLayout* layout       = new QFormLayout;
+            // General
+            auto* generalLayout       = new QFormLayout;
+            auto* generalGroupBox     = new QGroupBox("General");
             cellProperties_coordinate = new QLabel;
-            layout->addRow("Coordinates", cellProperties_coordinate);
-            QGroupBox* groupBox = new QGroupBox("General");
-            groupBox->setLayout(layout);
-            groupBox->setMinimumHeight(350);
+            generalLayout->addRow("Coordinates", cellProperties_coordinate);
+            generalGroupBox->setLayout(generalLayout);
+
+            // Layers
+            auto* layersLayout = new QFormLayout;
+            cellLayersGroupBox = new QGroupBox("Layers");
+            cellLayersGroupBox->setLayout(layersLayout);
+
+            // QWidget for all the groups
+            auto* cellPropertiesWidget  = new QWidget();
+            auto* cellPropertiesVLayout = new QVBoxLayout(cellPropertiesWidget);
+            cellPropertiesVLayout->addWidget(generalGroupBox);
+            cellPropertiesVLayout->addWidget(cellLayersGroupBox);
+            cellPropertiesVLayout->addStretch(1);
+
             auto someDockThing = new QDockWidget("Map Cell Properties", &mainWindow);
-            someDockThing->setWidget(groupBox);
+            someDockThing->setWidget(cellPropertiesWidget);
             //
 
             mainWindow.setCentralWidget(mapView);
