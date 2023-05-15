@@ -31,21 +31,28 @@ namespace Camps1te::Editor {
     // constexpr auto jsonFilePath = ":/data1.json";
     constexpr auto jsonFilePath = "../../../../Resources/Data/DataFile1.json";
 
-    nlohmann::json _myModData;
+    nlohmann::json _jsonDocument;
 
     QTableView* colorPaletteTable;
     QTableView* texturesTable;
 
     class App {
         nlohmann::json LoadJson() {
-            if (_myModData.is_null()) {
+            if (_jsonDocument.is_null()) {
                 QFile jsonFile{jsonFilePath};
                 jsonFile.open(QIODevice::ReadOnly);
                 auto jsonText = jsonFile.readAll().toStdString();
                 jsonFile.close();
-                _myModData = nlohmann::json::parse(jsonText);
+                _jsonDocument = nlohmann::json::parse(jsonText);
             }
-            return _myModData;
+            return _jsonDocument;
+        }
+
+        void SaveJson() {
+            QFile jsonFile{jsonFilePath};
+            jsonFile.open(QIODevice::WriteOnly);
+            jsonFile.write(_jsonDocument.dump(4).c_str());
+            jsonFile.close();
         }
 
         nlohmann::json GetMyModData() { return LoadJson()["data"]["my mod"]; }
@@ -161,6 +168,9 @@ namespace Camps1te::Editor {
                 {"data", colors }
             });
             RenderTile(mapCellRect, mapCellInfo);
+            _jsonDocument["data"]["my mod"]["maps"]["First Map"]["tiles"]
+                         [string_format("{},{}", x, y)] = mapCellInfo;
+            SaveJson();
         }
 
     public:
