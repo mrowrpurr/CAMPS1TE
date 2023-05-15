@@ -9,8 +9,12 @@
 #include <QDockWidget>
 #include <QFile>
 #include <QFileSystemWatcher>
+#include <QFormLayout>
+#include <QGroupBox>
 #include <QHeaderView>
 #include <QIcon>
+#include <QLabel>
+#include <QLineEdit>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -22,6 +26,8 @@
 #include <QTextStream>
 #include <memory>
 #include <nlohmann/json.hpp>
+#include <string>
+#include <vector>
 
 #include "../UI/MapCellGraphicsRectItem.h"
 #include "../UI/MapGraphicsScene.h"
@@ -39,6 +45,7 @@ namespace Camps1te::Editor {
     QTableView*        colorPaletteTable;
     QTableView*        texturesTable;
     QFileSystemWatcher qssFileWatcher;
+    QLabel*            cellProperties_coordinate;
 
     class App {
         nlohmann::json LoadJson() {
@@ -137,6 +144,7 @@ namespace Camps1te::Editor {
             auto tiles = GetMapInfo()["tiles"];
             auto key   = string_format("{},{}", x, y);
             if (tiles.contains(key)) return tiles[key];
+            else return {};
         }
 
         void UpdateMapViewTexture(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
@@ -203,6 +211,7 @@ namespace Camps1te::Editor {
         }
 
         void OnMapViewCellClick(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            cellProperties_coordinate->setText(string_format("{},{}", x, y).c_str());
             auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
             auto selectedColorName   = GetCurrentlySelectedColorNameOrEmpty();
             if (!selectedTextureName.empty()) {
@@ -345,9 +354,21 @@ namespace Camps1te::Editor {
                 QMessageBox::information(&mainWindow, "About", "CAMPS1TE experimental");
             });
 
+            // ...
+            QFormLayout* layout       = new QFormLayout;
+            cellProperties_coordinate = new QLabel;
+            layout->addRow("Coordinates", cellProperties_coordinate);
+            QGroupBox* groupBox = new QGroupBox("General");
+            groupBox->setLayout(layout);
+            groupBox->setMinimumHeight(350);
+            auto someDockThing = new QDockWidget("Map Cell Properties", &mainWindow);
+            someDockThing->setWidget(groupBox);
+            //
+
             mainWindow.setCentralWidget(mapView);
             mainWindow.addDockWidget(Qt::RightDockWidgetArea, colorPaletteDock);
             mainWindow.addDockWidget(Qt::LeftDockWidgetArea, texturesDock);
+            mainWindow.addDockWidget(Qt::LeftDockWidgetArea, someDockThing);
             mainWindow.show();
 
             return app.exec();
