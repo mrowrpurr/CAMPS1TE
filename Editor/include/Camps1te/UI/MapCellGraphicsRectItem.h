@@ -19,6 +19,11 @@ namespace Camps1te::UI {
             : QGraphicsRectItem(x, y, w, h, parent) {}
 
         void AddImage(const QImage& image) { _images.push_back(image); }
+        void RemoveImageAt(int index) {
+            //
+            _images.erase(_images.begin() + index);
+            //
+        }
 
         void OnClick(std::function<void()> handler) { _clickHandlers.push_back(handler); }
         void Click() {
