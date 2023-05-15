@@ -3,5 +3,6 @@
 <qresource>
     <file alias="editor.qss">Editor/Editor.qss</file>
     <file alias="logo.png">Logo/Camps1te 256.png</file>
+    <file alias="data1.json">Data/DataFile1.json</file>
 </qresource>
 </RCC>
