@@ -49,7 +49,7 @@ namespace Camps1te::Editor {
             QApplication app(argc, argv);
             QMainWindow  mainWindow;
             mainWindow.setWindowTitle(mapInfo.value("name", "").c_str());
-            mainWindow.setMinimumSize(1920, 1080);
+            mainWindow.setMinimumSize(1024, 768);
 
             // DOCKABLE COLOR PALETTE
 
@@ -68,9 +68,8 @@ namespace Camps1te::Editor {
             bluePixmap.fill(blue);
 
             // Now make the model
-            QStandardItemModel model(0, 2);
+            QStandardItemModel model(0, 1);
             model.setHeaderData(0, Qt::Horizontal, "Name");
-            model.setHeaderData(1, Qt::Horizontal, "Preview");
             model.appendRow(new QStandardItem(QIcon(redPixmap), "Red"));
             model.appendRow(new QStandardItem(QIcon(greenPixmap), "Green"));
             model.appendRow(new QStandardItem(QIcon(bluePixmap), "Blue"));
