@@ -11,6 +11,8 @@
 #include <QHeaderView>
 #include <QIcon>
 #include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 #include <QStandardItem>
@@ -131,6 +133,29 @@ namespace Camps1te::Editor {
 
             auto* mapView = new UI::MapGraphicsView();
             mapView->setScene(scene);
+
+            // MenuBar
+            QMenuBar* menuBar = mainWindow.menuBar();
+
+            QMenu*   fileMenu   = menuBar->addMenu("File");
+            QAction* exitAction = fileMenu->addAction("Exit");
+            exitAction->setShortcut(QKeySequence("Ctrl+Q"));
+            QObject::connect(exitAction, &QAction::triggered, [&]() { mainWindow.close(); });
+
+            // Windows menu
+            QMenu*   windowsMenu     = menuBar->addMenu("Windows");
+            QAction* mapEditorAction = windowsMenu->addAction("Color Palette");
+            mapEditorAction->setShortcut(QKeySequence("Ctrl+P"));
+            QObject::connect(mapEditorAction, &QAction::triggered, [&]() {
+                colorPaletteDock->show();
+            });
+
+            QMenu*   helpMenu    = menuBar->addMenu("Help");
+            QAction* aboutAction = helpMenu->addAction("About");
+            aboutAction->setShortcut(QKeySequence("F1"));
+            QObject::connect(aboutAction, &QAction::triggered, [&]() {
+                QMessageBox::information(&mainWindow, "About", "CAMPS1TE experimental");
+            });
 
             mainWindow.setCentralWidget(mapView);
             mainWindow.addDockWidget(Qt::RightDockWidgetArea, colorPaletteDock);
