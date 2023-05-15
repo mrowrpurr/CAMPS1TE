@@ -25,11 +25,16 @@
 #include "../UI/MapGraphicsScene.h"
 #include "../UI/MapGraphicsView.h"
 
+#define msgbox(...) QMessageBox::information(nullptr, "", string_format(__VA_ARGS__).c_str())
+
 namespace Camps1te::Editor {
     // constexpr auto jsonFilePath = ":/data1.json";
     constexpr auto jsonFilePath = "../../../../Resources/Data/DataFile1.json";
 
     nlohmann::json _myModData;
+
+    QTableView* colorPaletteTable;
+    QTableView* texturesTable;
 
     class App {
         nlohmann::json LoadJson() {
@@ -92,6 +97,26 @@ namespace Camps1te::Editor {
             }
         }
 
+        std::string GetCurrentlySelectedColorNameOrEmpty() {
+            if (colorPaletteTable->selectionModel()->selectedRows().empty()) return {};
+            return colorPaletteTable->selectionModel()
+                ->selectedRows()
+                .first()
+                .data(Qt::DisplayRole)
+                .toString()
+                .toStdString();
+        }
+
+        std::string GetCurrentlySelectedTextureNameOrEmpty() {
+            if (texturesTable->selectionModel()->selectedRows().empty()) return {};
+            return texturesTable->selectionModel()
+                ->selectedRows()
+                .first()
+                .data(Qt::DisplayRole)
+                .toString()
+                .toStdString();
+        }
+
     public:
         int Run(int argc, char* argv[]) {
             // DATA
@@ -110,7 +135,7 @@ namespace Camps1te::Editor {
             availableTexturesModel.setHeaderData(0, Qt::Horizontal, "Name");
             availableTexturesModel.setHeaderData(1, Qt::Horizontal, "Source");
             LoadAvailableTextures(availableTexturesModel);
-            auto* texturesTable = new QTableView();
+            texturesTable = new QTableView();
             texturesTable->setModel(&availableTexturesModel);
             texturesTable->setSortingEnabled(true);
             texturesTable->sortByColumn(0, Qt::AscendingOrder);
@@ -147,7 +172,7 @@ namespace Camps1te::Editor {
             model.appendRow(new QStandardItem(QIcon(bluePixmap), "Blue"));
 
             // Now a table...
-            auto* colorPaletteTable = new QTableView();
+            colorPaletteTable = new QTableView();
             colorPaletteTable->setModel(&model);
             colorPaletteTable->setSortingEnabled(true);
             colorPaletteTable->sortByColumn(0, Qt::AscendingOrder);
@@ -176,23 +201,13 @@ namespace Camps1te::Editor {
                         RenderTile(rect, tile);
                     }
 
-                    rect->OnClick([i, j, &colorPaletteTable]() {
-                        if (colorPaletteTable->selectionModel()->selectedRows().empty()) {
-                            QMessageBox::information(
-                                nullptr, "Clicked", string_format("No color selected").c_str()
-                            );
-                            return;
-                        }
+                    rect->OnClick([i, j, this]() {
+                        auto selectedColorName   = GetCurrentlySelectedColorNameOrEmpty();
+                        auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
 
-                        auto colorName = colorPaletteTable->selectionModel()
-                                             ->selectedRows()
-                                             .first()
-                                             .data(0)
-                                             .toString()
-                                             .toStdString();
-                        QMessageBox::information(
-                            nullptr, "Clicked",
-                            string_format("Clicked on {},{} with color {}", i, j, colorName).c_str()
+                        msgbox(
+                            "Clicked on {},{} with color {} or texture {}", i, j, selectedColorName,
+                            selectedTextureName
                         );
                     });
                     scene->addItem(rect);
