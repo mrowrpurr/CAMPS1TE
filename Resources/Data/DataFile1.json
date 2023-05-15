@@ -1,6 +1,32 @@
 {
     "data": {
         "my mod": {
+            "textures": {
+                "zigzag1": {
+                    "source": {
+                        "type": "path",
+                        "data": "C:/PublicDomainResources/Openclipart/264742.png"
+                    }
+                },
+                "hexes1": {
+                    "source": {
+                        "type": "path",
+                        "data": "C:/PublicDomainResources/Openclipart/270055.png"
+                    }
+                },
+                "grass1": {
+                    "source": {
+                        "type": "path",
+                        "data": "C:/PublicDomainResources/Openclipart/267061.png"
+                    }
+                },
+                "clovers1": {
+                    "source": {
+                        "type": "path",
+                        "data": "C:/PublicDomainResources/Openclipart/267083.png"
+                    }
+                }
+            },
             "maps": {
                 "First Map": {
                     "name": "First Map",
