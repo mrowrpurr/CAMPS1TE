@@ -72,6 +72,7 @@ namespace Camps1te::Editor {
             if (type == "path") {
                 auto path = image["source"]["data"].get<std::string>();
                 rect->SetImage(QImage(path.c_str()));
+                rect->update();
             }
         }
 
@@ -89,6 +90,7 @@ namespace Camps1te::Editor {
         }
 
         void LoadAvailableTextures(QStandardItemModel& model) {
+            model.appendRow(new QStandardItem("<None>"));
             auto textures = GetMyModData()["textures"];
             for (auto& [textureName, textureInfo] : textures.items()) {
                 auto textureSource = textureInfo["source"];
@@ -129,12 +131,34 @@ namespace Camps1te::Editor {
             if (tiles.contains(key)) return tiles[key];
         }
 
-        void OnMapViewCellClick(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
-            auto selectedColorName = GetCurrentlySelectedColorNameOrEmpty();
-            if (selectedColorName.empty()) {
-                msgbox("No color selected!");
+        void UpdateMapViewTexture(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
+
+            auto textureInfo = GetMyModData()["textures"][selectedTextureName];
+            auto textureType = textureInfo["source"]["type"].get<std::string>();
+            auto texturePath = textureInfo["source"]["data"].get<std::string>();
+            mapCellRect->SetImage(QImage(texturePath.c_str()));
+
+            auto mapCellInfo = GetMapCellInfo(x, y);
+            if (mapCellInfo.is_null()) {
+                msgbox("No map cell info at {},{}", x, y);
                 return;
             }
+            if (!mapCellInfo.contains("layers")) mapCellInfo["layers"] = nlohmann::json::array();
+            mapCellInfo.clear();
+            mapCellInfo["layers"].push_back({
+                {"type", "image"                                                },
+                {"data", {{"source", {{"type", "path"}, {"data", texturePath}}}}},
+            });
+
+            RenderTile(mapCellRect, mapCellInfo);
+            _jsonDocument["data"]["my mod"]["maps"]["First Map"]["tiles"]
+                         [string_format("{},{}", x, y)] = mapCellInfo;
+            SaveJson();
+        }
+
+        void UpdateMapViewCellColor(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            auto selectedColorName = GetCurrentlySelectedColorNameOrEmpty();
 
             std::vector<int> colors;
             if (selectedColorName == "Red") colors = {255, 0, 0, 255};
@@ -158,19 +182,27 @@ namespace Camps1te::Editor {
             }
 
             // Totally replace all layers with this color!
-            if (!mapCellInfo.contains("layers")) {
-                //
-                mapCellInfo["layers"] = nlohmann::json::array();
-            }
+            if (!mapCellInfo.contains("layers")) mapCellInfo["layers"] = nlohmann::json::array();
             mapCellInfo.clear();
             mapCellInfo["layers"].push_back({
                 {"type", "color"},
                 {"data", colors }
             });
+
             RenderTile(mapCellRect, mapCellInfo);
             _jsonDocument["data"]["my mod"]["maps"]["First Map"]["tiles"]
                          [string_format("{},{}", x, y)] = mapCellInfo;
             SaveJson();
+        }
+
+        void OnMapViewCellClick(UI::MapCellGraphicsRectItem* mapCellRect, int x, int y) {
+            auto selectedTextureName = GetCurrentlySelectedTextureNameOrEmpty();
+            auto selectedColorName   = GetCurrentlySelectedColorNameOrEmpty();
+            if (!selectedTextureName.empty()) {
+                UpdateMapViewTexture(mapCellRect, x, y);
+            } else if (!selectedColorName.empty()) {
+                UpdateMapViewCellColor(mapCellRect, x, y);
+            }
         }
 
     public:
@@ -223,6 +255,7 @@ namespace Camps1te::Editor {
             // Now make the model
             QStandardItemModel model(0, 1);
             model.setHeaderData(0, Qt::Horizontal, "Name");
+            model.appendRow(new QStandardItem("<None>"));
             model.appendRow(new QStandardItem(QIcon(redPixmap), "Red"));
             model.appendRow(new QStandardItem(QIcon(greenPixmap), "Green"));
             model.appendRow(new QStandardItem(QIcon(bluePixmap), "Blue"));
