@@ -29,16 +29,23 @@ namespace Camps1te::Editor {
     // constexpr auto jsonFilePath = ":/data1.json";
     constexpr auto jsonFilePath = "../../../../Resources/Data/DataFile1.json";
 
+    nlohmann::json _myModData;
+
     class App {
         nlohmann::json LoadJson() {
-            QFile jsonFile{jsonFilePath};
-            jsonFile.open(QIODevice::ReadOnly);
-            auto jsonText = jsonFile.readAll().toStdString();
-            jsonFile.close();
-            return nlohmann::json::parse(jsonText);
+            if (_myModData.is_null()) {
+                QFile jsonFile{jsonFilePath};
+                jsonFile.open(QIODevice::ReadOnly);
+                auto jsonText = jsonFile.readAll().toStdString();
+                jsonFile.close();
+                _myModData = nlohmann::json::parse(jsonText);
+            }
+            return _myModData;
         }
 
-        auto GetMapInfo() { return LoadJson()["data"]["my mod"]["maps"]["First Map"]; }
+        nlohmann::json GetMyModData() { return LoadJson()["data"]["my mod"]; }
+
+        auto GetMapInfo() { return GetMyModData()["maps"]["First Map"]; }
 
         void RenderTileColor(UI::MapCellGraphicsRectItem* rect, const nlohmann::json& color) {
             auto red   = color[0];
@@ -70,6 +77,21 @@ namespace Camps1te::Editor {
             }
         }
 
+        void LoadAvailableTextures(QStandardItemModel& model) {
+            auto textures = GetMyModData()["textures"];
+            for (auto& [textureName, textureInfo] : textures.items()) {
+                auto textureSource = textureInfo["source"];
+                auto textureType   = textureSource["type"].get<std::string>();
+                if (textureType == "path") {
+                    auto  texturePath = textureSource["data"].get<std::string>();
+                    QIcon icon{texturePath.c_str()};
+                    auto* item = new QStandardItem(icon, textureName.c_str());
+                    item->setData(texturePath.c_str(), Qt::TextAlignmentRole);
+                    model.appendRow(item);
+                }
+            }
+        }
+
     public:
         int Run(int argc, char* argv[]) {
             // DATA
@@ -82,6 +104,24 @@ namespace Camps1te::Editor {
             QMainWindow  mainWindow;
             mainWindow.setWindowTitle(mapInfo.value("name", "").c_str());
             mainWindow.setMinimumSize(1024, 768);
+
+            // Dockable Images for Tiles and Objects
+            QStandardItemModel availableTexturesModel(0, 1);
+            availableTexturesModel.setHeaderData(0, Qt::Horizontal, "Name");
+            availableTexturesModel.setHeaderData(1, Qt::Horizontal, "Source");
+            LoadAvailableTextures(availableTexturesModel);
+            auto* texturesTable = new QTableView();
+            texturesTable->setModel(&availableTexturesModel);
+            texturesTable->setSortingEnabled(true);
+            texturesTable->sortByColumn(0, Qt::AscendingOrder);
+            texturesTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+            texturesTable->setSelectionMode(QAbstractItemView::SingleSelection);
+            texturesTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+            texturesTable->horizontalHeader()->setStretchLastSection(true);
+            texturesTable->verticalHeader()->hide();
+            auto texturesDock = new QDockWidget("Tile Textures", &mainWindow);
+            texturesDock->setMinimumWidth(350);
+            texturesDock->setWidget(texturesTable);
 
             // DOCKABLE COLOR PALETTE
 
@@ -122,11 +162,15 @@ namespace Camps1te::Editor {
             colorPaletteDock->setWidget(colorPaletteTable);
 
             // DOCKABLE MAP VIEW
-            auto* scene = new UI::MapGraphicsScene();
+            auto  cellSize = 50;
+            auto  padding  = 0;
+            auto* scene    = new UI::MapGraphicsScene();
             for (int i = 0; i < columns; i++) {
                 for (int j = 0; j < rows; j++) {
-                    auto* rect = new UI::MapCellGraphicsRectItem(i * 50, j * 50, 45, 45);
-                    auto  key  = string_format("{},{}", j, i);
+                    auto* rect = new UI::MapCellGraphicsRectItem(
+                        i * cellSize, j * cellSize, cellSize - padding, cellSize - padding
+                    );
+                    auto key = string_format("{},{}", j, i);
                     if (mapInfo["tiles"].contains(key)) {
                         auto tile = mapInfo["tiles"][key];
                         RenderTile(rect, tile);
@@ -183,6 +227,7 @@ namespace Camps1te::Editor {
 
             mainWindow.setCentralWidget(mapView);
             mainWindow.addDockWidget(Qt::RightDockWidgetArea, colorPaletteDock);
+            mainWindow.addDockWidget(Qt::LeftDockWidgetArea, texturesDock);
             mainWindow.show();
 
             return app.exec();
