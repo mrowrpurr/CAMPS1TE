@@ -90,9 +90,9 @@ namespace Camps1te::Editor {
                 if (textureType == "path") {
                     auto  texturePath = textureSource["data"].get<std::string>();
                     QIcon icon{texturePath.c_str()};
-                    auto* item = new QStandardItem(icon, textureName.c_str());
-                    item->setData(texturePath.c_str(), Qt::TextAlignmentRole);
-                    model.appendRow(item);
+                    auto* name = new QStandardItem(icon, textureName.c_str());
+                    auto* path = new QStandardItem(texturePath.c_str());
+                    model.appendRow({name, path});
                 }
             }
         }
@@ -131,7 +131,7 @@ namespace Camps1te::Editor {
             mainWindow.setMinimumSize(1024, 768);
 
             // Dockable Images for Tiles and Objects
-            QStandardItemModel availableTexturesModel(0, 1);
+            QStandardItemModel availableTexturesModel(0, 2);
             availableTexturesModel.setHeaderData(0, Qt::Horizontal, "Name");
             availableTexturesModel.setHeaderData(1, Qt::Horizontal, "Source");
             LoadAvailableTextures(availableTexturesModel);
