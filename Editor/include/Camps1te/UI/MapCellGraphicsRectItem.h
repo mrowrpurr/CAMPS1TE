@@ -12,15 +12,13 @@ namespace Camps1te::UI {
 
     class MapCellGraphicsRectItem : public QGraphicsRectItem {
         std::vector<std::function<void()>> _clickHandlers;
-
-        // Just one image now, but it'll be a vector of layer objects later
-        QImage _image;
+        std::vector<QImage>                _images;
 
     public:
         MapCellGraphicsRectItem(qreal x, qreal y, qreal w, qreal h, QGraphicsItem* parent = nullptr)
             : QGraphicsRectItem(x, y, w, h, parent) {}
 
-        void SetImage(const QImage& image) { _image = image; }
+        void AddImage(const QImage& image) { _images.push_back(image); }
 
         void OnClick(std::function<void()> handler) { _clickHandlers.push_back(handler); }
         void Click() {
@@ -32,17 +30,16 @@ namespace Camps1te::UI {
             Q_UNUSED(option);
             Q_UNUSED(widget);
 
-            if (_image.isNull()) {
+            if (_images.empty()) {
                 this->setPen(QPen(Qt::white));
                 QGraphicsRectItem::paint(painter, option, widget);
                 return;
             }
 
-            // Scale image to rect size
-            QImage scaledImage = _image.scaled(rect().size().toSize());
-
-            // Draw scaled image
-            painter->drawImage(rect(), scaledImage);
+            for (auto& image : _images) {
+                QImage scaledImage = image.scaled(rect().size().toSize());
+                painter->drawImage(rect(), scaledImage);
+            }
         }
 
     protected:

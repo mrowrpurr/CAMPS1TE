@@ -75,7 +75,7 @@ namespace Camps1te::Editor {
             auto type = image["source"]["type"].get<std::string>();
             if (type == "path") {
                 auto path = image["source"]["data"].get<std::string>();
-                rect->SetImage(QImage(path.c_str()));
+                rect->AddImage(QImage(path.c_str()));
                 rect->update();
             }
         }
@@ -145,7 +145,7 @@ namespace Camps1te::Editor {
             auto textureInfo = GetMyModData()["textures"][selectedTextureName];
             auto textureType = textureInfo["source"]["type"].get<std::string>();
             auto texturePath = textureInfo["source"]["data"].get<std::string>();
-            mapCellRect->SetImage(QImage(texturePath.c_str()));
+            mapCellRect->AddImage(QImage(texturePath.c_str()));
 
             auto mapCellInfo = GetMapCellInfo(x, y);
             if (mapCellInfo.is_null()) {
@@ -153,7 +153,6 @@ namespace Camps1te::Editor {
                 return;
             }
             if (!mapCellInfo.contains("layers")) mapCellInfo["layers"] = nlohmann::json::array();
-            mapCellInfo.clear();
             mapCellInfo["layers"].push_back({
                 {"type", "image"                                                },
                 {"data", {{"source", {{"type", "path"}, {"data", texturePath}}}}},
@@ -302,7 +301,7 @@ namespace Camps1te::Editor {
             colorPaletteDock->setWidget(colorPaletteTable);
 
             // DOCKABLE MAP VIEW
-            auto  cellSize = 50;
+            auto  cellSize = 128;
             auto  padding  = 0;
             auto* scene    = new UI::MapGraphicsScene();
             for (int i = 0; i < columns; i++) {
