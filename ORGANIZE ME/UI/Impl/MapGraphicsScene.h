@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-namespace Camps1te::UI {
+namespace Camps1te::UI::Impl {
 
     class MapGraphicsScene : public QGraphicsScene {
         std::vector<std::function<void(int, int)>> _clickHandlers;

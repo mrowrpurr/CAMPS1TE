@@ -8,7 +8,7 @@
 
 #include "MapCellGraphicsRectItem.h"
 
-namespace Camps1te::UI {
+namespace Camps1te::UI::Impl {
 
     class MapGraphicsView : public QGraphicsView {
         qreal   _totalScaleFactor = 1;
