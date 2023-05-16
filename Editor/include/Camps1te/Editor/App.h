@@ -4,8 +4,10 @@
 #include <_Log_.h>
 
 #include <QApplication>
+#include <QMainWindow>
+#include <QStandardItemModel>
+#include <QTreeView>
 #include <QWidget>
-
 
 namespace Camps1te::Editor {
 
@@ -18,19 +20,41 @@ namespace Camps1te::Editor {
         int Run(int argc, char* argv[]) {
             QApplication app(argc, argv);
             app.setStyleSheet("QWidget { font-size: 20px; }");
-            QWidget window;
+            QMainWindow window;
 
             Data::JsonDataFile dataFile1(DataFile1Path);
+            auto               entries = dataFile1.GetEntries();
 
-            // Get the different types of data from the data file.
-            std::vector<std::string> types;
+            // Create and set up model
+            QStandardItemModel* model = new QStandardItemModel(&window);
+            model->setHorizontalHeaderLabels({"Game Data"});
 
-            for (auto& entry : dataFile1.GetEntries()) {
-                _Log_("Entry: {} {}", entry->GetIdentifier(), entry->GetType());
-                types.push_back(entry->GetType());
+            // Create tree structure
+            std::map<std::string, QStandardItem*> parents;
+            for (const auto& entry : entries) {
+                auto type       = entry->GetType();
+                auto identifier = entry->GetIdentifier();
+
+                QStandardItem* parentItem = nullptr;
+                auto           it         = parents.find(type);
+                if (it == parents.end()) {
+                    parentItem = new QStandardItem(QString::fromStdString(type));
+                    model->appendRow(parentItem);
+                    parents[type] = parentItem;
+                } else {
+                    parentItem = it->second;
+                }
+
+                QStandardItem* childItem = new QStandardItem(QString::fromStdString(identifier));
+                parentItem->appendRow(childItem);
             }
 
-            // For each type, we'll add children for each identifier
+            // Create and set up view
+            QTreeView* view = new QTreeView(&window);
+            view->setModel(model);
+
+            // Set the tree view as the central widget
+            window.setCentralWidget(view);
 
             window.show();
             return app.exec();
