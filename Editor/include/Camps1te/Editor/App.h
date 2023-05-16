@@ -19,7 +19,10 @@ namespace Camps1te::Editor {
     public:
         int Run(int argc, char* argv[]) {
             QApplication app(argc, argv);
-            app.setStyleSheet("QWidget { font-size: 20px; }");
+            app.setStyleSheet(
+                "QWidget, QHeaderView::section { font-size: 20px; color: white; background-color: "
+                "black; }"
+            );
             QMainWindow window;
 
             Data::JsonDataFile dataFile1(DataFile1Path);
