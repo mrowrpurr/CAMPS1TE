@@ -27,13 +27,14 @@ namespace Camps1te::Editor {
 
             // Create and set up model
             QStandardItemModel* model = new QStandardItemModel(&window);
-            model->setHorizontalHeaderLabels({"Game Data"});
+            model->setHorizontalHeaderLabels({"Type", "Description"});
 
             // Create tree structure
             std::map<std::string, QStandardItem*> parents;
             for (const auto& entry : entries) {
-                auto type       = entry->GetType();
-                auto identifier = entry->GetIdentifier();
+                auto type        = entry->GetType();
+                auto identifier  = entry->GetIdentifier();
+                auto description = entry->GetString("description");
 
                 QStandardItem* parentItem = nullptr;
                 auto           it         = parents.find(type);
@@ -45,8 +46,10 @@ namespace Camps1te::Editor {
                     parentItem = it->second;
                 }
 
-                QStandardItem* childItem = new QStandardItem(QString::fromStdString(identifier));
-                parentItem->appendRow(childItem);
+                QList<QStandardItem*> rowItems;
+                rowItems.append(new QStandardItem(QString::fromStdString(identifier)));
+                rowItems.append(new QStandardItem(QString::fromStdString(description)));
+                parentItem->appendRow(rowItems);
             }
 
             // Create and set up view

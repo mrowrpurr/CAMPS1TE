@@ -16,5 +16,6 @@ namespace Camps1te::Data {
 
         std::string GetType() const override { return _json["type"]; }
         std::string GetIdentifier() const override { return _identifier; }
+        std::string GetString(const std::string& path) const override { return _json[path]; }
     };
 }
