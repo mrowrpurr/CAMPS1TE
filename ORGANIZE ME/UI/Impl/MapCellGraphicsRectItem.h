@@ -8,7 +8,7 @@
 #include <functional>
 #include <vector>
 
-namespace Camps1te::UI {
+namespace Camps1te::UI::Impl {
 
     class MapCellGraphicsRectItem : public QGraphicsRectItem {
         std::vector<std::function<void()>> _clickHandlers;

@@ -1,0 +1,6 @@
+target("Camps1te.Game")
+    set_kind("headeronly")
+    add_includedirs("include", {public = true})
+    add_headerfiles("include/(**).h")
+    add_packages("_Log_", "spdlog", "string_format")
+    add_deps("Camps1te.Data")
