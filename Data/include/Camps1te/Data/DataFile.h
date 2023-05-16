@@ -2,14 +2,17 @@
 
 #include <_Log_.h>
 
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "DataEntry.h"
+
 
 namespace Camps1te::Data {
 
     struct DataFile {
-        virtual ~DataFile()                                                          = default;
-        virtual std::vector<std::string> GetPluginNames()                            = 0;
-        virtual std::vector<std::string> GetDataTypes(const std::string& pluginName) = 0;
+        virtual ~DataFile()                                          = default;
+        virtual std::vector<std::unique_ptr<DataEntry>> GetEntries() = 0;
     };
 }
