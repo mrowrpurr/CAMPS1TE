@@ -5,13 +5,32 @@
 
 #include <filesystem>
 #include <functional>
+#include <memory>
+
+#include "Camps1te/Data/DataFile.h"
+#include "Camps1te/Data/DataStore.h"
+#include "Camps1te/Data/JsonDataFile.h"
+#include "Camps1te/Data/JsonDataStore.h"
+#include "Camps1te/Data/JsonRecord.h"
+#include "Camps1te/Data/JsonRecordData.h"
 
 using namespace snowhouse;
+using namespace Camps1te::Data;
 
 std::filesystem::path SpecResourcesFolder{"../../../../Data.Specs/Resources"};
 
 std::filesystem::path GetResourcePath(const std::string& path) {
     return SpecResourcesFolder / path;
+}
+
+std::unique_ptr<DataFile> GetDataFile(const std::string& fileName) {
+    auto jsonFilePath = GetResourcePath(fileName);
+    return std::unique_ptr<DataFile>(new JsonDataFile{jsonFilePath});
+}
+
+std::unique_ptr<JsonDataFile> GetJsonDataFile(const std::string& fileName) {
+    auto jsonFilePath = GetResourcePath(fileName);
+    return std::unique_ptr<JsonDataFile>(new JsonDataFile{jsonFilePath});
 }
 
 #define Assert "Do not use Assert::That"

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <_Log_.h>
+#include <string_format.h>
 
 #include <nlohmann/json.hpp>
 
@@ -10,11 +11,14 @@
 namespace Camps1te::Data {
 
     class JsonRecord : public Record {
-        const char*                     _identifier;
+        std::string                     _owner;
+        std::string                     _identifier;
+        std::string                     _fullIdentifier;
+        std::string                     _type;
         nlohmann::json&                 _recordJson;
         std::unique_ptr<JsonRecordData> _recordData;
 
-        std::optional<std::reference_wrapper<nlohmann::json>> GetDataSection() {
+        std::optional<std::reference_wrapper<nlohmann::json>> GetJsonDataSection() {
             if (_recordJson.is_null()) return std::nullopt;
             if (!_recordJson.contains("data")) {
                 _Log_("Record {} does not contain a 'data' section", _identifier);
@@ -24,17 +28,30 @@ namespace Camps1te::Data {
         }
 
     public:
-        JsonRecord(const char* identifier, nlohmann::json& recordData)
-            : _identifier(identifier), _recordJson(recordData) {}
+        JsonRecord(const char* owner, const char* identifier, nlohmann::json& recordData)
+            : _owner(owner), _identifier(identifier), _recordJson(recordData) {
+            _fullIdentifier = string_format("{}.{}", _owner, _identifier);
+        }
 
-        const char* GetFullIdentifier() override { return nullptr; }
-        const char* GetOwnerName() override { return nullptr; }
-        const char* GetRelativeIdentifier() override { return nullptr; }
-        const char* GetType() override { return nullptr; }
+        const char* GetFullIdentifier() override { return _fullIdentifier.c_str(); }
+        const char* GetOwnerName() override { return _owner.c_str(); }
+        const char* GetRelativeIdentifier() override { return _identifier.c_str(); }
+        const char* GetType() override {
+            if (!_type.empty()) return _type.c_str();
+            if (_recordJson.is_null()) return nullptr;
+            if (!_recordJson.contains("type")) {
+                _Log_("Record {} does not contain a 'type' section", _identifier);
+                return nullptr;
+            }
+            _type = _recordJson["type"].get<std::string>().c_str();
+            return _type.c_str();
+        }
+
+        nlohmann::json& GetJsonDocument() { return _recordJson; }
 
         RecordData* GetData() override {
             if (_recordData) return _recordData.get();
-            auto dataSection = GetDataSection();
+            auto dataSection = GetJsonDataSection();
             if (!dataSection.has_value()) return nullptr;
             _recordData = std::make_unique<JsonRecordData>(dataSection.value().get());
             return _recordData.get();

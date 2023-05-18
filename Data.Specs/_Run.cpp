@@ -6,8 +6,8 @@
 
 //
 // include test files
-#include "BasicDataLoading.Spec.h"
-//
+#include "JsonDataFile.Spec.h"
+#include "JsonDataStore.Spec.h"
 //
 
 int main(int argc, char** argv) {
