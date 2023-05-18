@@ -10,7 +10,7 @@ if is_host("windows") then
 elseif is_host("macosx") then
     set_toolchains("clang")
 elseif is_host("linux") then
-    -- TODO
+    set_toolchains("gcc")
 end
 
 includes("xmake/qt.lua")

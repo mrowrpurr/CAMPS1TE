@@ -48,7 +48,19 @@ function add_qt()
         add_frameworks("QtCore", "QtGui", "QtWidgets")
 
     elseif is_host("linux") then
-        -- TODO
+
+        local qt_platform_folder = path.join(qt_root, "gcc_64")
+        local qt_lib = path.join(qt_platform_folder, "lib")
+        local qt_include = path.join(qt_platform_folder, "include")
+
+        -- include
+        add_includedirs(path.join(qt_include, "QtCore"))
+        add_includedirs(path.join(qt_include, "QtGui"))
+        add_includedirs(path.join(qt_include, "QtWidgets"))
+
+        -- link
+        add_linkdirs(qt_lib)
+        add_links("Qt6Core", "Qt6Gui", "Qt6Widgets")
 
     else
         print("Unsupported host platform")
