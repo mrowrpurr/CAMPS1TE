@@ -1,0 +1,40 @@
+{
+    "data": {
+        "parfait": {
+            "type": "food",
+            "data": {
+                "name": "Parfait",
+                "price": 3.99,
+                "description": "A parfait is a frozen dessert made from sugar syrup, egg, and cream.",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Parfait.jpg/800px-Parfait.jpg"
+            }
+        },
+        "angelcake": {
+            "type": "food",
+            "data": {
+                "name": "Angel Cake",
+                "price": 4.99,
+                "description": "Angel cake is a type of layered sponge cake dessert that originated in the United Kingdom, and first became popular in the late 19th century.",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Angel_food_cake.jpg/800px-Angel_food_cake.jpg"
+            }
+        },
+        "applepie": {
+            "type": "food",
+            "data": {
+                "name": "Apple Pie",
+                "price": 5.99,
+                "description": "An apple pie is a pie in which the principal filling ingredient is apple.",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Piece_of_apple_pie.jpg/800px-Piece_of_apple_pie.jpg"
+            }
+        },
+        "sweetroll": {
+            "type": "food",
+            "data": {
+                "name": "Sweetroll",
+                "price": 2.99,
+                "description": "A sweet roll is a sweet baked dessert eaten for breakfast or as a snack.",
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/Sweetroll.jpg/800px-Sweetroll.jpg"
+            }
+        }
+    }
+}

@@ -1,18 +1,12 @@
 #pragma once
 
-#include <_Log_.h>
-
-#include <memory>
-#include <string>
-#include <vector>
-
-#include "DataEntry.h"
-
+#include "Record.h"
 
 namespace Camps1te::Data {
 
     struct DataFile {
-        virtual ~DataFile()                                          = default;
-        virtual std::vector<std::unique_ptr<DataEntry>> GetEntries() = 0;
+        virtual ~DataFile() = default;
+
+        virtual Record* GetRecord(const char* identifier) = 0;
     };
 }
