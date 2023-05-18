@@ -6,7 +6,12 @@
                 "name": "Parfait",
                 "price": 3.99,
                 "description": "A parfait is a frozen dessert made from sugar syrup, egg, and cream.",
-                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Parfait.jpg/800px-Parfait.jpg"
+                "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Parfait.jpg/800px-Parfait.jpg",
+                "layers": [
+                    "Strawberry",
+                    "Vanilla",
+                    "Chocolate"
+                ]
             }
         },
         "angelcake": {

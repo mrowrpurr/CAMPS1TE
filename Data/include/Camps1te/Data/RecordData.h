@@ -16,6 +16,8 @@ namespace Camps1te::Data {
         virtual bool HasInt(const char* path) const         = 0;
         virtual bool HasFloat(const char* path) const       = 0;
 
+        virtual size_t GetElementCount(const char* path) const = 0;
+
         virtual std::optional<RecordData*> GetChildRecord(const char* path) const = 0;
         virtual std::optional<std::string> GetString(const char* path) const      = 0;
         virtual std::optional<bool>        GetBool(const char* path) const        = 0;
