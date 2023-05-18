@@ -28,9 +28,12 @@ namespace Camps1te::Data {
         }
 
     public:
-        JsonRecord(const char* owner, const char* identifier, nlohmann::json& recordData)
+        JsonRecord(
+            const std::string& owner, const std::string& identifier, nlohmann::json& recordData
+        )
             : _owner(owner), _identifier(identifier), _recordJson(recordData) {
-            _fullIdentifier = string_format("{}.{}", _owner, _identifier);
+            if (_identifier.find('.') != std::string::npos) _fullIdentifier = _identifier;
+            else _fullIdentifier = string_format("{}.{}", _owner, _identifier);
         }
 
         const char* GetFullIdentifier() override { return _fullIdentifier.c_str(); }
