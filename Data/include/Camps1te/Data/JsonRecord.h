@@ -11,6 +11,7 @@
 namespace Camps1te::Data {
 
     class JsonRecord : public Record {
+        bool                            _isDeletion;
         std::string                     _owner;
         std::string                     _identifier;
         std::string                     _fullIdentifier;
@@ -32,8 +33,17 @@ namespace Camps1te::Data {
             const std::string& owner, const std::string& identifier, nlohmann::json& recordData
         )
             : _owner(owner), _identifier(identifier), _recordJson(recordData) {
-            if (_identifier.find('.') != std::string::npos) _fullIdentifier = _identifier;
-            else _fullIdentifier = string_format("{}.{}", _owner, _identifier);
+            std::string id{identifier};
+
+            if (id.find("::delete") != std::string::npos) {
+                _isDeletion = true;
+                id          = id.substr(0, _identifier.find("::delete"));
+            } else {
+                _isDeletion = false;
+            }
+
+            if (id.find('.') != std::string::npos) _fullIdentifier = id;
+            else _fullIdentifier = string_format("{}.{}", _owner, id);
         }
 
         const char* GetFullIdentifier() override { return _fullIdentifier.c_str(); }
@@ -49,6 +59,9 @@ namespace Camps1te::Data {
             _type = _recordJson["type"].get<std::string>().c_str();
             return _type.c_str();
         }
+        bool IsDeletion() override { return _isDeletion; }
+
+        //
 
         nlohmann::json& GetJsonDocument() { return _recordJson; }
 

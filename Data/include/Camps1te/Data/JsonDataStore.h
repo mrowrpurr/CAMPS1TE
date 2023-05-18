@@ -63,7 +63,10 @@ namespace Camps1te::Data {
         }
 
     public:
-        bool    InsertRecord(Record* record) override { return {}; }
+        bool HasRecord(const char* fullIdentifier) override {
+            return _records.contains(fullIdentifier);
+        }
+
         Record* GetRecord(const char* fullIdentifier) override {
             auto found = _records.find(fullIdentifier);
             if (found != _records.end()) return found->second.get();
@@ -71,6 +74,14 @@ namespace Camps1te::Data {
         }
         Record* GetRecord(const char* ownerName, const char* relativeIdentifier) override {
             return GetRecord(string_format("{}.{}", ownerName, relativeIdentifier).c_str());
+        }
+        bool DeleteRecord(const char* fullIdentifier) override {
+            if (_records.contains(fullIdentifier)) {
+                _records.erase(fullIdentifier);
+                _recordJsons.erase(fullIdentifier);
+                return true;
+            }
+            return false;
         }
         std::vector<Record*> GetAllRecords() override {
             std::vector<Record*> records;
@@ -100,7 +111,8 @@ namespace Camps1te::Data {
             auto records = jsonFile.GetAllRecords();
             for (auto& record : records) {
                 auto jsonRecord = static_cast<JsonRecord*>(record);
-                InsertRecord(*jsonRecord);
+                if (jsonRecord->IsDeletion()) DeleteRecord(jsonRecord->GetFullIdentifier());
+                else InsertRecord(*jsonRecord);
             }
             return true;
         }
