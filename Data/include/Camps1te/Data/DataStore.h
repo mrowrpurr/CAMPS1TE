@@ -9,10 +9,12 @@ namespace Camps1te::Data {
     struct DataStore {
         virtual ~DataStore() = default;
 
-        virtual bool InsertRecord(Record* record) = 0;
+        virtual bool HasRecord(const char* fullIdentifier) = 0;
 
         virtual Record* GetRecord(const char* fullIdentifier)                            = 0;
         virtual Record* GetRecord(const char* ownerName, const char* relativeIdentifier) = 0;
+
+        virtual bool DeleteRecord(const char* fullIdentifier) = 0;
 
         virtual std::vector<Record*> GetAllRecords()                             = 0;
         virtual std::vector<Record*> GetAllRecordsOfOwner(const char* ownerName) = 0;

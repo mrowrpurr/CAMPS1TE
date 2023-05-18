@@ -1,7 +1,6 @@
 {
     "data": {
-        "DATA FILE ID.sweetroll": {
-            "type": "food",
+        "FoodDataFile.sweetroll": {
             "data": {
                 "description": "A sweet roll is friggin' delicious"
             }
