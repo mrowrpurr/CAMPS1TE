@@ -54,9 +54,13 @@ namespace Camps1te::Data {
             auto value = GetNestedJson(path);
             return value && value->get().is_array();
         }
-        bool HasRecord(const char* path) const {
+        bool HasMap(const char* path) const {
             auto value = GetNestedJson(path);
             return value && value->get().is_object();
+        }
+        bool HasObject(const char* path) const {
+            auto value = GetNestedJson(path);
+            return value && (value->get().is_object() || value->get().is_array());
         }
 
         bool IsNull(const char* path) const {
@@ -88,9 +92,14 @@ namespace Camps1te::Data {
             if (_recordData.is_null()) return false;
             return _recordData.size() > index && _recordData[index].is_array();
         }
-        bool HasRecordAt(size_t index) const {
+        bool HasMapAt(size_t index) const {
             if (_recordData.is_null()) return false;
             return _recordData.size() > index && _recordData[index].is_object();
+        }
+        bool HasObjectAt(size_t index) const {
+            if (_recordData.is_null()) return false;
+            return _recordData.size() > index &&
+                   (_recordData[index].is_object() || _recordData[index].is_array());
         }
 
         bool IsNullAt(size_t index) const {
@@ -131,7 +140,7 @@ namespace Camps1te::Data {
             if (!value || !value->get().is_number_float()) return {};
             return value->get().get<float>();
         }
-        std::optional<RecordData*> GetRecord(const char* path) const {
+        std::optional<RecordData*> GetObject(const char* path) const {
             auto value = GetNestedJson(path);
             if (!value || !value->get().is_object()) return {};
             return new JsonRecordData(value->get());
@@ -176,7 +185,7 @@ namespace Camps1te::Data {
             }
             return list;
         }
-        std::optional<std::vector<RecordData*>> GetRecordList(const char* path) const {
+        std::optional<std::vector<RecordData*>> GetObjectList(const char* path) const {
             auto value = GetNestedJson(path);
             if (!value || !value->get().is_array()) return {};
             std::vector<RecordData*> list;
@@ -211,7 +220,7 @@ namespace Camps1te::Data {
             if (!_recordData[index].is_number_float()) return {};
             return _recordData[index].get<float>();
         }
-        std::optional<RecordData*> GetRecordAt(size_t index) const {
+        std::optional<RecordData*> GetObjectAt(size_t index) const {
             if (_recordData.is_null()) return {};
             if (_recordData.size() <= index) return {};
             if (!_recordData[index].is_object()) return {};
@@ -261,7 +270,7 @@ namespace Camps1te::Data {
             }
             return list;
         }
-        std::optional<std::vector<RecordData*>> GetRecordListAt(size_t index) const {
+        std::optional<std::vector<RecordData*>> GetObjectListAt(size_t index) const {
             if (_recordData.is_null()) return {};
             if (_recordData.size() <= index) return {};
             if (!_recordData[index].is_array()) return {};

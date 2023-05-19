@@ -9,7 +9,7 @@ namespace Camps1te::Data {
     struct DataStore {
         virtual ~DataStore() = default;
 
-        virtual bool HasRecord(const char* fullIdentifier) = 0;
+        virtual bool HasObject(const char* fullIdentifier) = 0;
 
         virtual Record* GetRecord(const char* fullIdentifier)                            = 0;
         virtual Record* GetRecord(const char* ownerName, const char* relativeIdentifier) = 0;

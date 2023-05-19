@@ -20,7 +20,7 @@ Describe("JsonRecordData") {
         AssertThat(data->HasInt("topLevelInteger"), IsTrue());
         AssertThat(data->HasFloat("topLevelFloat"), IsTrue());
         AssertThat(data->HasList("topLevelStringArray"), IsTrue());
-        AssertThat(data->HasRecord("topLevelSimpleStringMap"), IsTrue());
+        AssertThat(data->HasObject("topLevelSimpleStringMap"), IsTrue());
 
         // Top Level - Negative
         AssertThat(data->Has("doesNotExist"), IsFalse());
@@ -34,17 +34,17 @@ Describe("JsonRecordData") {
         AssertThat(data->HasFloat("topLevelString"), IsFalse());
         AssertThat(data->HasList("doesNotExist"), IsFalse());
         AssertThat(data->HasList("topLevelString"), IsFalse());
-        AssertThat(data->HasRecord("doesNotExist"), IsFalse());
-        AssertThat(data->HasRecord("topLevelString"), IsFalse());
+        AssertThat(data->HasObject("doesNotExist"), IsFalse());
+        AssertThat(data->HasObject("topLevelString"), IsFalse());
 
         // Nested - Positive
-        AssertThat(data->Has("a.few.nested.levels.nestedString.XXX"), IsTrue());
-        // AssertThat(data->HasString(""), IsTrue());
-        // AssertThat(data->HasBool(""), IsTrue());
-        // AssertThat(data->HasInt(""), IsTrue());
-        // AssertThat(data->HasFloat(""), IsTrue());
-        // AssertThat(data->HasList(""), IsTrue());
-        // AssertThat(data->HasRecord(""), IsTrue());
+        AssertThat(data->Has("a.few.nested.levels.nestedString"), IsTrue());
+        AssertThat(data->HasString("a.few.nested.levels.nestedString"), IsTrue());
+        AssertThat(data->HasBool("a.few.nested.levels.nestedBoolean"), IsTrue());
+        AssertThat(data->HasInt("a.few.nested.levels.nestedInteger"), IsTrue());
+        AssertThat(data->HasFloat("a.few.nested.levels.nestedFloat"), IsTrue());
+        AssertThat(data->HasList("a.few.nested.levels.nestedStringArray"), IsTrue());
+        AssertThat(data->HasObject("a.few.nested.levels.nestedSimpleStringMap"), IsTrue());
     });
 
     it("Has*At", []() {

@@ -63,7 +63,7 @@ namespace Camps1te::Data {
         }
 
     public:
-        bool HasRecord(const char* fullIdentifier) override {
+        bool HasObject(const char* fullIdentifier) override {
             return _records.contains(fullIdentifier);
         }
 

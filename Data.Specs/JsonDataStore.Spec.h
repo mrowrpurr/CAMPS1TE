@@ -48,8 +48,8 @@ Describe("JsonDataStore") {
         JsonDataStore dataStore;
         dataStore.InsertDataFile(*GetJsonDataFile("FoodDataFile.json"));
 
-        AssertThat(dataStore.HasRecord("FoodDataFile.parfait"), IsTrue());
-        AssertThat(dataStore.HasRecord("FoodDataFile.angelcake"), IsTrue());
+        AssertThat(dataStore.HasObject("FoodDataFile.parfait"), IsTrue());
+        AssertThat(dataStore.HasObject("FoodDataFile.angelcake"), IsTrue());
         AssertThat(
             dataStore.GetRecord("FoodDataFile.parfait")
                 ->GetData()
@@ -67,8 +67,8 @@ Describe("JsonDataStore") {
 
         dataStore.InsertDataFile(*GetJsonDataFile("DeleteSomeFood.json"));
 
-        AssertThat(dataStore.HasRecord("FoodDataFile.parfait"), IsTrue());
-        AssertThat(dataStore.HasRecord("FoodDataFile.angelcake"), IsFalse());
+        AssertThat(dataStore.HasObject("FoodDataFile.parfait"), IsTrue());
+        AssertThat(dataStore.HasObject("FoodDataFile.angelcake"), IsFalse());
         AssertThat(
             dataStore.GetRecord("FoodDataFile.parfait")
                 ->GetData()
