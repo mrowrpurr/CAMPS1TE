@@ -1,0 +1,81 @@
+{
+    "data": {
+        "Cool.Record1": {
+            "type": "whatever",
+            "data": {
+                "topLevelString": "hello!",
+                "topLevelInteger": 123,
+                "topLevelFloat": 123.456,
+                "topLevelBoolean": true,
+                "topLevelNull": null,
+                "topLevelIntegerArray": [
+                    1,
+                    2,
+                    3
+                ],
+                "topLevelFloatArray": [
+                    1.1,
+                    2.2,
+                    3.3
+                ],
+                "topLevelStringArray": [
+                    "a",
+                    "b",
+                    "c"
+                ],
+                "topLevelBooleanArray": [
+                    true,
+                    false,
+                    true
+                ],
+                "topLevelNullArray": [
+                    null,
+                    null,
+                    null
+                ],
+                "topLevelSimpleStringMap": {
+                    "a": "hello!",
+                    "b": "world!"
+                },
+                "a": {
+                    "few": {
+                        "nested": {
+                            "levels": {
+                                "nestedString": "hello!",
+                                "nestedInteger": 123,
+                                "nestedFloat": 123.456,
+                                "nestedBoolean": true,
+                                "nestedNull": null,
+                                "nestedIntegerArray": [
+                                    1,
+                                    2,
+                                    3
+                                ],
+                                "nestedFloatArray": [
+                                    1.1,
+                                    2.2,
+                                    3.3
+                                ],
+                                "nestedStringArray": [
+                                    "a",
+                                    "b",
+                                    "c"
+                                ],
+                                "nestedBooleanArray": [
+                                    true,
+                                    false,
+                                    true
+                                ],
+                                "nestedNullArray": [
+                                    null,
+                                    null,
+                                    null
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

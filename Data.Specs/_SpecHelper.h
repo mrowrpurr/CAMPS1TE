@@ -33,6 +33,13 @@ std::unique_ptr<JsonDataFile> GetJsonDataFile(const std::string& fileName) {
     return std::unique_ptr<JsonDataFile>(new JsonDataFile{jsonFilePath});
 }
 
+std::unique_ptr<JsonDataStore> GetJsonDataStore(const std::string& fileName) {
+    auto dataFile  = GetJsonDataFile(fileName);
+    auto dataStore = new JsonDataStore();
+    dataStore->InsertDataFile(*dataFile);
+    return std::unique_ptr<JsonDataStore>(dataStore);
+}
+
 #define Assert "Do not use Assert::That"
 
 namespace HacksPendingSpecsCppLibraryCompletion {
