@@ -70,7 +70,11 @@
                                     null,
                                     null,
                                     null
-                                ]
+                                ],
+                                "nestedSimpleStringMap": {
+                                    "a": "hello!",
+                                    "b": "world!"
+                                }
                             }
                         }
                     }

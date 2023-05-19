@@ -38,13 +38,28 @@ Describe("JsonRecordData") {
         AssertThat(data->HasRecord("topLevelString"), IsFalse());
 
         // Nested - Positive
-        AssertThat(data->Has("a.few.nested.levels.nestedString.XXX"), IsTrue());
-        // AssertThat(data->HasString(""), IsTrue());
-        // AssertThat(data->HasBool(""), IsTrue());
-        // AssertThat(data->HasInt(""), IsTrue());
-        // AssertThat(data->HasFloat(""), IsTrue());
-        // AssertThat(data->HasList(""), IsTrue());
-        // AssertThat(data->HasRecord(""), IsTrue());
+        AssertThat(data->Has("a.few.nested.levels.nestedString"), IsTrue());
+        AssertThat(data->HasString("a.few.nested.levels.nestedString"), IsTrue());
+        AssertThat(data->HasBool("a.few.nested.levels.nestedBoolean"), IsTrue());
+        AssertThat(data->HasInt("a.few.nested.levels.nestedInteger"), IsTrue());
+        AssertThat(data->HasFloat("a.few.nested.levels.nestedFloat"), IsTrue());
+        AssertThat(data->HasList("a.few.nested.levels.nestedIntegerArray"), IsTrue());
+        AssertThat(data->HasRecord("a.few.nested.levels.nestedSimpleStringMap"), IsTrue());
+
+        // Nested - Negative
+        AssertThat(data->Has("a.few.nested.levels.doesNotExist"), IsFalse());
+        AssertThat(data->HasString("a.few.nested.levels.doesNotExist"), IsFalse());
+        AssertThat(data->HasString("a.few.nested.levels.nestedBool"), IsFalse());
+        AssertThat(data->HasBool("a.few.nested.levels.doesNotExist"), IsFalse());
+        AssertThat(data->HasBool("a.few.nested.levels.nestedString"), IsFalse());
+        AssertThat(data->HasInt("a.few.nested.levels.doesNotExist"), IsFalse());
+        AssertThat(data->HasInt("a.few.nested.levels.nestedString"), IsFalse());
+        AssertThat(data->HasFloat("a.few.nested.levels.doesNotExist"), IsFalse());
+        AssertThat(data->HasFloat("a.few.nested.levels.nestedString"), IsFalse());
+        AssertThat(data->HasList("a.few.nested.levels.doesNotExist"), IsFalse());
+        AssertThat(data->HasList("a.few.nested.levels.nestedString"), IsFalse());
+        AssertThat(data->HasRecord("a.few.nested.levels.doesNotExist"), IsFalse());
+        AssertThat(data->HasRecord("a.few.nested.levels.nestedString"), IsFalse());
     });
 
     it("Has*At", []() {
