@@ -168,8 +168,10 @@ private:
         // Might want the home dir in the future...
         // auto homeDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 
-        // But, for now, let's use the development data folder
-        return std::filesystem::canonical(Camps1te::Editor::Paths::Development::DataFolder);
+        // But, for now, let's use the development data folder (if it exists)
+        if (std::filesystem::exists(Camps1te::Editor::Paths::Development::DataFolder))
+            return std::filesystem::canonical(Camps1te::Editor::Paths::Development::DataFolder);
+        else return QStandardPaths::writableLocation(QStandardPaths::HomeLocation).toStdString();
     }
 
     void ChangeFolder(const QString& newPath) {
