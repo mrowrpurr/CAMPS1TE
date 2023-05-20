@@ -156,12 +156,10 @@ Describe("JsonRecordData") {
             // Strings aren't converted to numbers magically tho
             AssertThat(*data->GetFloat("topLevelStringNumber"), Equals(0.0f));
         });
+
+        // TODO
     });
 
-    describe("Lists", []() {
-        //
-        it("x", []() {
-            // ...
-        });
-    });
+    // describe("Lists", []() {
+    // });
 }
