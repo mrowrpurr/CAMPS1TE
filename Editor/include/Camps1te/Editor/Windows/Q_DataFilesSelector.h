@@ -25,75 +25,118 @@
 class DataFilesSelectorWindow : public QWidget {
     Q_OBJECT
 
-    QVBoxLayout                    layout_Window;
-    QHBoxLayout                    layout_DataFolder;
-    QLineEdit                      txt_DataFolder;
-    QPushButton                    btn_SelectFolder{"Select Folder"};
-    QTreeView                      tree_DataFiles;
-    DataFilesListStandardItemModel model_DataFiles;
-    QHBoxLayout                    layout_DataFiles_Buttons;
-    QPushButton                    btn_DataFiles_SetActive{"Set Active"};
-    QPushButton                    btn_Continue{"Continue"};
+#pragma region Widget Variables
+    QVBoxLayout                    _layout_Window;
+    QHBoxLayout                    _layout_DataFolder;
+    QLineEdit                      _txt_DataFolder;
+    QPushButton                    _btn_SelectFolder{"Select Folder"};
+    QTreeView                      _tree_DataFiles;
+    DataFilesListStandardItemModel _model_DataFiles;
+    QHBoxLayout                    _layout_DataFiles_Buttons;
+    QPushButton                    _btn_DataFiles_SetActive{"Set Active"};
+    QPushButton                    _btn_Continue{"Continue"};
+#pragma endregion
+
+public:
+    DataFilesSelectorWindow(QWidget* parent = nullptr) : QWidget(parent) {
+        Configure();
+        Layout();
+        Events();
+        _txt_DataFolder.setText(GetDefaultFolderChooserPath().c_str());
+    }
+
+private:
+#pragma region Widget Setup
 
     void Layout() {
-        layout_DataFolder.addWidget(new QLabel("Data Folder:"));
-        layout_DataFolder.addWidget(&txt_DataFolder);
-        layout_DataFolder.setStretchFactor(&txt_DataFolder, 1);
-        layout_Window.addLayout(&layout_DataFolder);
-        layout_Window.addLayout(&layout_DataFolder);
-        layout_Window.addWidget(&btn_SelectFolder);
-        layout_Window.addWidget(&tree_DataFiles);
-        layout_DataFiles_Buttons.addWidget(&btn_DataFiles_SetActive);
-        layout_DataFiles_Buttons.addWidget(&btn_Continue);
-        layout_Window.addLayout(&layout_DataFiles_Buttons);
-        setLayout(&layout_Window);
+        _layout_DataFolder.addWidget(new QLabel("Data Folder:"));
+        _layout_DataFolder.addWidget(&_txt_DataFolder);
+        _layout_DataFolder.setStretchFactor(&_txt_DataFolder, 1);
+        _layout_Window.addLayout(&_layout_DataFolder);
+        _layout_Window.addLayout(&_layout_DataFolder);
+        _layout_Window.addWidget(&_btn_SelectFolder);
+        _layout_Window.addWidget(&_tree_DataFiles);
+        _layout_DataFiles_Buttons.addWidget(&_btn_DataFiles_SetActive);
+        _layout_DataFiles_Buttons.addWidget(&_btn_Continue);
+        _layout_Window.addLayout(&_layout_DataFiles_Buttons);
+        setLayout(&_layout_Window);
     }
 
     void Configure() {
-        tree_DataFiles.setModel(&model_DataFiles);
-        tree_DataFiles.setSortingEnabled(true);
-        tree_DataFiles.setDragDropMode(QAbstractItemView::InternalMove);
-        tree_DataFiles.setDragEnabled(true);
-        tree_DataFiles.setAcceptDrops(true);
-        tree_DataFiles.setDropIndicatorShown(true);
-        tree_DataFiles.header()->setSectionResizeMode(0, QHeaderView::Stretch);
-        tree_DataFiles.header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-        btn_DataFiles_SetActive.setDisabled(true);
-        btn_Continue.setDisabled(true);
+        _tree_DataFiles.setModel(&_model_DataFiles);
+        _tree_DataFiles.setSortingEnabled(true);
+        _tree_DataFiles.setDragDropMode(QAbstractItemView::InternalMove);
+        _tree_DataFiles.setDragEnabled(true);
+        _tree_DataFiles.setAcceptDrops(true);
+        _tree_DataFiles.setDropIndicatorShown(true);
+        _tree_DataFiles.header()->setSectionResizeMode(0, QHeaderView::Stretch);
+        _tree_DataFiles.header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+        _btn_DataFiles_SetActive.setDisabled(true);
+        _btn_Continue.setDisabled(true);
     }
 
     void Events() {
         connect(
-            &btn_SelectFolder, &QPushButton::clicked, this,
-            &DataFilesSelectorWindow::on_Click_btn_SelectFolder
+            &_btn_SelectFolder, &QPushButton::clicked, this,
+            &DataFilesSelectorWindow::on_btn_SelectFolder_clicked
         );
         connect(
-            &btn_DataFiles_SetActive, &QPushButton::clicked, this,
-            &DataFilesSelectorWindow::on_Click_btn_DataFiles_SetActive
+            &_btn_DataFiles_SetActive, &QPushButton::clicked, this,
+            &DataFilesSelectorWindow::on_btn_DataFiles_SetActive_clicked
         );
         connect(
-            &txt_DataFolder, &QLineEdit::textChanged, this,
-            &DataFilesSelectorWindow::on_TextChange_txt_DataFolder
+            &_txt_DataFolder, &QLineEdit::textChanged, this,
+            &DataFilesSelectorWindow::on_txt_DataFolder_textChanged
         );
         connect(
-            &tree_DataFiles, &QTreeView::clicked, this,
-            &DataFilesSelectorWindow::on_Click_tree_DataFiles
+            &_tree_DataFiles, &QTreeView::clicked, this,
+            &DataFilesSelectorWindow::on_tree_DataFiles_clicked
         );
         connect(
-            &model_DataFiles, &DataFilesListStandardItemModel::itemChanged, this,
+            &_model_DataFiles, &DataFilesListStandardItemModel::itemChanged, this,
             &DataFilesSelectorWindow::on_model_DataFiles_itemChanged
         );
-        connect(&btn_Continue, &QPushButton::clicked, [&]() {
+        connect(&_btn_Continue, &QPushButton::clicked, [&]() {
             QString message = "Checkbox selections:\n";
-            for (int i = 0; i < model_DataFiles.rowCount(); ++i) {
-                QStandardItem* item1 = model_DataFiles.item(i, 0);
-                QStandardItem* item2 = model_DataFiles.item(i, 1);
+            for (int i = 0; i < _model_DataFiles.rowCount(); ++i) {
+                QStandardItem* item1 = _model_DataFiles.item(i, 0);
+                QStandardItem* item2 = _model_DataFiles.item(i, 1);
                 if (item1->checkState() == Qt::Checked)
                     message += item1->text() + ": " + item2->text() + "\n";
             }
             QMessageBox::information(this, "Checked Items", message);
         });
     }
+
+#pragma endregion
+#pragma region Event Handlers
+
+    void on_btn_SelectFolder_clicked() {
+        auto dir = QFileDialog::getExistingDirectory(
+            this, tr("Choose Data Files Directory"), GetDefaultFolderChooserPath().c_str(),
+            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
+        );
+        if (!dir.isEmpty()) _txt_DataFolder.setText(dir);
+    }
+
+    void on_tree_DataFiles_clicked(const QModelIndex& index) {
+        _btn_DataFiles_SetActive.setDisabled(false);
+    }
+
+    void on_btn_DataFiles_SetActive_clicked() {
+        QModelIndexList selectedRows = _tree_DataFiles.selectionModel()->selectedRows();
+        if (selectedRows.size() == 1) _model_DataFiles.setActive(selectedRows[0].row());
+    }
+
+    void on_txt_DataFolder_textChanged(const QString& newPath) { ChangeFolder(newPath); }
+
+    void on_model_DataFiles_itemChanged(QStandardItem* item) {
+        if (item->isCheckable() && item->checkState() == Qt::Unchecked)
+            _model_DataFiles.setActive(item->row(), false);
+    }
+
+#pragma endregion
+#pragma region Private Functions
 
     std::filesystem::path GetDefaultFolderChooserPath() {
         // Might want the home dir in the future...
@@ -104,7 +147,8 @@ class DataFilesSelectorWindow : public QWidget {
     }
 
     void ChangeFolder(const QString& newPath) {
-        model_DataFiles.removeRows(0, model_DataFiles.rowCount());
+        _model_DataFiles.removeRows(0, _model_DataFiles.rowCount());
+        _btn_DataFiles_SetActive.setDisabled(true);
 
         QFileInfo checkFile(newPath);
         if (checkFile.isDir() && checkFile.exists()) {
@@ -119,51 +163,23 @@ class DataFilesSelectorWindow : public QWidget {
                 loadOrderColumn->setData(i, Qt::DisplayRole);
                 auto* isActiveColumn = new QStandardItem();
                 isActiveColumn->setData(false, Qt::DisplayRole);
-                model_DataFiles.appendRow({filenameColumn, loadOrderColumn, isActiveColumn});
+                _model_DataFiles.appendRow({filenameColumn, loadOrderColumn, isActiveColumn});
                 ++i;
             }
-            model_DataFiles.updateOrder();
+            _model_DataFiles.updateOrder();
 
             // valid directory, so remove the invalid style
-            txt_DataFolder.setProperty("invalid", QVariant(false));
-            txt_DataFolder.style()->unpolish(&txt_DataFolder);
-            txt_DataFolder.style()->polish(&txt_DataFolder);
-            btn_Continue.setDisabled(false);
+            _txt_DataFolder.setProperty("invalid", QVariant(false));
+            _txt_DataFolder.style()->unpolish(&_txt_DataFolder);
+            _txt_DataFolder.style()->polish(&_txt_DataFolder);
+            _btn_Continue.setDisabled(false);
         } else {
             // invalid directory, so apply the invalid style
-            txt_DataFolder.setProperty("invalid", QVariant(true));
-            txt_DataFolder.style()->unpolish(&txt_DataFolder);
-            txt_DataFolder.style()->polish(&txt_DataFolder);
-            btn_Continue.setDisabled(true);
+            _txt_DataFolder.setProperty("invalid", QVariant(true));
+            _txt_DataFolder.style()->unpolish(&_txt_DataFolder);
+            _txt_DataFolder.style()->polish(&_txt_DataFolder);
+            _btn_Continue.setDisabled(true);
         }
     }
-
-public:
-    DataFilesSelectorWindow(QWidget* parent = nullptr) : QWidget(parent) {
-        Configure();
-        Layout();
-        Events();
-        txt_DataFolder.setText(GetDefaultFolderChooserPath().c_str());
-    }
-
-public slots:
-    void on_Click_btn_SelectFolder() {
-        auto dir = QFileDialog::getExistingDirectory(
-            this, tr("Choose Data Files Directory"), GetDefaultFolderChooserPath().c_str(),
-            QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
-        );
-        if (!dir.isEmpty()) txt_DataFolder.setText(dir);
-    }
-    void on_Click_tree_DataFiles(const QModelIndex& index) {
-        btn_DataFiles_SetActive.setDisabled(false);
-    }
-    void on_Click_btn_DataFiles_SetActive() {
-        QModelIndexList selectedRows = tree_DataFiles.selectionModel()->selectedRows();
-        if (selectedRows.size() == 1) model_DataFiles.setActive(selectedRows[0].row());
-    }
-    void on_TextChange_txt_DataFolder(const QString& newPath) { ChangeFolder(newPath); }
-    void on_model_DataFiles_itemChanged(QStandardItem* item) {
-        if (item->isCheckable() && item->checkState() == Qt::Unchecked)
-            model_DataFiles.setActive(item->row(), false);
-    }
+#pragma endregion
 };
