@@ -1,17 +1,14 @@
-#include <QApplication>
-#include <QMainWindow>
-#include <QMessageBox>
-#include <QPushButton>
 #include <QStandardItem>
 #include <QTimer>
-#include <QTreeView>
-#include <QVBoxLayout>
 
-class CustomStandardItemModel : public QStandardItemModel {
+class DataFilesListStandardItemModel : public QStandardItemModel {
     Q_OBJECT
 
 public:
-    CustomStandardItemModel(QObject* parent = nullptr) : QStandardItemModel(parent) {}
+    DataFilesListStandardItemModel(QObject* parent = nullptr) : QStandardItemModel(parent) {
+        setColumnCount(3);
+        setHorizontalHeaderLabels({"Select", "Description", "Order"});
+    }
 
     Qt::ItemFlags flags(const QModelIndex& index) const override {
         Qt::ItemFlags defaultFlags = QStandardItemModel::flags(index);
@@ -37,7 +34,7 @@ public:
         bool success = QStandardItemModel::dropMimeData(data, action, row, column, parent);
         if (success) {
             // Delay the order update to ensure the row numbers are updated
-            QTimer::singleShot(0, this, &CustomStandardItemModel::updateOrder);
+            QTimer::singleShot(0, this, &DataFilesListStandardItemModel::updateOrder);
         }
         return success;
     }

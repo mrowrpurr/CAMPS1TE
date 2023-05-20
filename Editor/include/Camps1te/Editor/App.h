@@ -2,6 +2,7 @@
 
 #include <QApplication>
 
+#include "Strings.h"
 #include "Windows/DataFilesSelector.h"
 
 namespace Camps1te::Editor {
@@ -17,9 +18,10 @@ namespace Camps1te::Editor {
         int Run(int argc, char* argv[]) {
             app.setStyleSheet("QLineEdit[invalid=true] { color: red; }");
             DataFilesSelectorWindow window;
+            window.setWindowTitle(Strings::WindowTitle);
             window.show();
             app.exec();
-            return true;
+            return 0;
         }
     };
 }
