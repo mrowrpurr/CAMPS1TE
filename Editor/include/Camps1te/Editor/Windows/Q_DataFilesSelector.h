@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string_format.h>
+
 #include <QDir>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -49,6 +51,10 @@ private:
 #pragma region Widget Setup
 
     void Layout() {
+        _layout_Window.setObjectName("DataFilesWindow_Layout");
+        _layout_DataFolder.setObjectName("DataFilesWindow_DataFolder_Layout");
+        _layout_DataFiles_Buttons.setObjectName("DataFilesWindow_DataFiles_Buttons_Layout");
+
         _layout_DataFolder.addWidget(new QLabel("Data Folder:"));
         _layout_DataFolder.addWidget(&_txt_DataFolder);
         _layout_DataFolder.setStretchFactor(&_txt_DataFolder, 1);
@@ -97,14 +103,22 @@ private:
             &DataFilesSelectorWindow::on_model_DataFiles_itemChanged
         );
         connect(&_btn_Continue, &QPushButton::clicked, [&]() {
-            QString message = "Checkbox selections:\n";
+            QString message = "Data Files to Load:\n";
             for (int i = 0; i < _model_DataFiles.rowCount(); ++i) {
-                QStandardItem* item1 = _model_DataFiles.item(i, 0);
-                QStandardItem* item2 = _model_DataFiles.item(i, 1);
-                if (item1->checkState() == Qt::Checked)
-                    message += item1->text() + ": " + item2->text() + "\n";
+                if (_model_DataFiles.item(i, 0)->checkState() == Qt::Checked) {
+                    auto name      = _model_DataFiles.item(i, 0)->text();
+                    auto loadOrder = _model_DataFiles.item(i, 1)->data(Qt::DisplayRole).toInt();
+                    auto isActive  = _model_DataFiles.item(i, 2)->data(Qt::DisplayRole).toBool();
+                    if (isActive)
+                        message +=
+                            string_format("{} [{}] (Active)\n", name.toStdString(), loadOrder)
+                                .c_str();
+                    else
+                        message +=
+                            string_format("{} [{}]\n", name.toStdString(), loadOrder).c_str();
+                }
             }
-            QMessageBox::information(this, "Checked Items", message);
+            QMessageBox::information(this, "Data Files", message);
         });
     }
 
@@ -131,8 +145,20 @@ private:
     void on_txt_DataFolder_textChanged(const QString& newPath) { ChangeFolder(newPath); }
 
     void on_model_DataFiles_itemChanged(QStandardItem* item) {
+        if (_model_DataFiles.IsPerformingReorder()) return;
+
         if (item->isCheckable() && item->checkState() == Qt::Unchecked)
             _model_DataFiles.setActive(item->row(), false);
+
+        // If at least 1 item is checked then enable btn_Continue
+        for (int i = 0; i < _model_DataFiles.rowCount(); ++i) {
+            QStandardItem* checkboxItem = _model_DataFiles.item(i, 0);
+            if (checkboxItem->checkState() == Qt::Checked) {
+                _btn_Continue.setDisabled(false);
+                return;
+            }
+        }
+        _btn_Continue.setDisabled(true);
     }
 
 #pragma endregion
@@ -149,6 +175,7 @@ private:
     void ChangeFolder(const QString& newPath) {
         _model_DataFiles.removeRows(0, _model_DataFiles.rowCount());
         _btn_DataFiles_SetActive.setDisabled(true);
+        _btn_Continue.setDisabled(true);
 
         QFileInfo checkFile(newPath);
         if (checkFile.isDir() && checkFile.exists()) {
@@ -172,13 +199,11 @@ private:
             _txt_DataFolder.setProperty("invalid", QVariant(false));
             _txt_DataFolder.style()->unpolish(&_txt_DataFolder);
             _txt_DataFolder.style()->polish(&_txt_DataFolder);
-            _btn_Continue.setDisabled(false);
         } else {
             // invalid directory, so apply the invalid style
             _txt_DataFolder.setProperty("invalid", QVariant(true));
             _txt_DataFolder.style()->unpolish(&_txt_DataFolder);
             _txt_DataFolder.style()->polish(&_txt_DataFolder);
-            _btn_Continue.setDisabled(true);
         }
     }
 #pragma endregion
