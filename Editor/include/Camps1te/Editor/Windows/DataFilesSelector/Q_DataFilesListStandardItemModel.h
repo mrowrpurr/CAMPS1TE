@@ -1,17 +1,16 @@
-#include <QApplication>
-#include <QMainWindow>
-#include <QMessageBox>
-#include <QPushButton>
+#pragma once
+
 #include <QStandardItem>
 #include <QTimer>
-#include <QTreeView>
-#include <QVBoxLayout>
 
-class CustomStandardItemModel : public QStandardItemModel {
+class DataFilesListStandardItemModel : public QStandardItemModel {
     Q_OBJECT
 
 public:
-    CustomStandardItemModel(QObject* parent = nullptr) : QStandardItemModel(parent) {}
+    DataFilesListStandardItemModel(QObject* parent = nullptr) : QStandardItemModel(parent) {
+        setColumnCount(2);
+        setHorizontalHeaderLabels({"Data File", "Load Order"});
+    }
 
     Qt::ItemFlags flags(const QModelIndex& index) const override {
         Qt::ItemFlags defaultFlags = QStandardItemModel::flags(index);
@@ -37,15 +36,13 @@ public:
         bool success = QStandardItemModel::dropMimeData(data, action, row, column, parent);
         if (success) {
             // Delay the order update to ensure the row numbers are updated
-            QTimer::singleShot(0, this, &CustomStandardItemModel::updateOrder);
+            QTimer::singleShot(0, this, &DataFilesListStandardItemModel::updateOrder);
         }
         return success;
     }
 
 public slots:
     void updateOrder() {
-        for (int i = 0; i < rowCount(); ++i) {
-            item(i, 2)->setData(i, Qt::DisplayRole);  // Use column 2 for "Order"
-        }
+        for (int i = 0; i < rowCount(); ++i) item(i, 1)->setData(i, Qt::DisplayRole);
     }
 };

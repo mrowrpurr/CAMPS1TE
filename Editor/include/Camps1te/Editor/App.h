@@ -2,11 +2,10 @@
 
 #include <QApplication>
 
-#include "Windows/DataFilesSelector.h"
+#include "Strings.h"
+#include "Windows/Q_DataFilesSelector.h"
 
 namespace Camps1te::Editor {
-
-    constexpr auto QssFilePath = "../../../../Resources/Editor/Editor.qss";
 
     class App {
         int          argc = 0;
@@ -17,9 +16,11 @@ namespace Camps1te::Editor {
         int Run(int argc, char* argv[]) {
             app.setStyleSheet("QLineEdit[invalid=true] { color: red; }");
             DataFilesSelectorWindow window;
+            window.setWindowTitle(Strings::WindowTitle);
+            window.setMinimumWidth(600);
             window.show();
             app.exec();
-            return true;
+            return 0;
         }
     };
 }
