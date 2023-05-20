@@ -14,6 +14,7 @@ namespace Camps1te::Data {
         virtual bool Has(const char* path) const       = 0;
         virtual bool HasString(const char* path) const = 0;
         virtual bool HasBool(const char* path) const   = 0;
+        virtual bool HasNumber(const char* path) const = 0;
         virtual bool HasInt(const char* path) const    = 0;
         virtual bool HasFloat(const char* path) const  = 0;
         virtual bool HasList(const char* path) const   = 0;
@@ -24,6 +25,7 @@ namespace Camps1te::Data {
         virtual bool HasAt(size_t index) const       = 0;
         virtual bool HasStringAt(size_t index) const = 0;
         virtual bool HasBoolAt(size_t index) const   = 0;
+        virtual bool HasNumberAt(size_t index) const = 0;
         virtual bool HasIntAt(size_t index) const    = 0;
         virtual bool HasFloatAt(size_t index) const  = 0;
         virtual bool HasListAt(size_t index) const   = 0;
@@ -55,61 +57,5 @@ namespace Camps1te::Data {
         virtual std::optional<std::vector<int>>         GetIntListAt(size_t index) const    = 0;
         virtual std::optional<std::vector<float>>       GetFloatListAt(size_t index) const  = 0;
         virtual std::optional<std::vector<RecordData*>> GetObjectListAt(size_t index) const = 0;
-
-        template <typename T>
-        std::optional<T> Get(const char* path) {
-            if constexpr (std::is_same_v<T, RecordData*>) {
-                return GetObject(path);
-            } else if constexpr (std::is_same_v<T, std::string>) {
-                return GetString(path);
-            } else if constexpr (std::is_same_v<T, bool>) {
-                return GetBool(path);
-            } else if constexpr (std::is_same_v<T, int>) {
-                return GetInt(path);
-            } else if constexpr (std::is_same_v<T, float>) {
-                return GetFloat(path);
-            } else if constexpr (std::is_same_v<T, std::vector<std::string>>) {
-                return GetStringList(path);
-            } else if constexpr (std::is_same_v<T, std::vector<bool>>) {
-                return GetBoolList(path);
-            } else if constexpr (std::is_same_v<T, std::vector<int>>) {
-                return GetIntList(path);
-            } else if constexpr (std::is_same_v<T, std::vector<float>>) {
-                return GetFloatList(path);
-            } else if constexpr (std::is_same_v<T, std::vector<RecordData*>>) {
-                return GetObjectList(path);
-            } else {
-                _Log_("Unsupported type for RecordData.Get()");
-                return std::nullopt;
-            }
-        }
-
-        template <typename T>
-        std::optional<T> GetAt(size_t index) {
-            if constexpr (std::is_same_v<T, RecordData*>) {
-                return GetObjectAt(index);
-            } else if constexpr (std::is_same_v<T, std::string>) {
-                return GetStringAt(index);
-            } else if constexpr (std::is_same_v<T, bool>) {
-                return GetBoolAt(index);
-            } else if constexpr (std::is_same_v<T, int>) {
-                return GetIntAt(index);
-            } else if constexpr (std::is_same_v<T, float>) {
-                return GetFloatAt(index);
-            } else if constexpr (std::is_same_v<T, std::vector<std::string>>) {
-                return GetStringListAt(index);
-            } else if constexpr (std::is_same_v<T, std::vector<bool>>) {
-                return GetBoolListAt(index);
-            } else if constexpr (std::is_same_v<T, std::vector<int>>) {
-                return GetIntListAt(index);
-            } else if constexpr (std::is_same_v<T, std::vector<float>>) {
-                return GetFloatListAt(index);
-            } else if constexpr (std::is_same_v<T, std::vector<RecordData*>>) {
-                return GetObjectListAt(index);
-            } else {
-                _Log_("Unsupported type for RecordData.GetAt()");
-                return std::nullopt;
-            }
-        }
     };
 }

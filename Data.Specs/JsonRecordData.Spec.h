@@ -18,7 +18,9 @@ Describe("JsonRecordData") {
         AssertThat(data->HasString("topLevelString"), IsTrue());
         AssertThat(data->HasBool("topLevelBoolean"), IsTrue());
         AssertThat(data->HasInt("topLevelInteger"), IsTrue());
+        AssertThat(data->HasNumber("topLevelInteger"), IsTrue());
         AssertThat(data->HasFloat("topLevelFloat"), IsTrue());
+        AssertThat(data->HasNumber("topLevelFloat"), IsTrue());
         AssertThat(data->HasList("topLevelStringArray"), IsTrue());
         AssertThat(data->HasMap("topLevelSimpleStringMap"), IsTrue());
         AssertThat(data->HasObject("topLevelSimpleStringMap"), IsTrue());
@@ -30,6 +32,8 @@ Describe("JsonRecordData") {
         AssertThat(data->HasString("topLevelBool"), IsFalse());
         AssertThat(data->HasBool("doesNotExist"), IsFalse());
         AssertThat(data->HasBool("topLevelString"), IsFalse());
+        AssertThat(data->HasNumber("doesNotExist"), IsFalse());
+        AssertThat(data->HasNumber("topLevelString"), IsFalse());
         AssertThat(data->HasInt("doesNotExist"), IsFalse());
         AssertThat(data->HasInt("topLevelString"), IsFalse());
         AssertThat(data->HasFloat("doesNotExist"), IsFalse());
@@ -72,7 +76,39 @@ Describe("JsonRecordData") {
     });
 
     it("Has*At", []() {
-        //
+        auto dataStore = GetJsonDataStore("DataFileForJsonRecordDataSpec.json");
+        auto data      = dataStore->GetRecord("Cool", "Record1")->GetData();
+        auto list      = data->GetObject("topLevelMiscStuffList").value();
+
+        // Positive
+        AssertThat(list->HasStringAt(0), IsTrue());
+        AssertThat(list->HasIntAt(1), IsTrue());
+        AssertThat(list->HasFloatAt(2), IsTrue());
+        AssertThat(list->HasBoolAt(3), IsTrue());
+        AssertThat(list->IsNullAt(4), IsTrue());
+        AssertThat(list->HasMapAt(5), IsTrue());
+        AssertThat(list->HasObjectAt(6), IsTrue());
+        AssertThat(list->HasListAt(7), IsTrue());
+        AssertThat(list->HasObjectAt(8), IsTrue());
+
+        // Is an integer a valid float?
+        AssertThat(list->HasFloatAt(1), IsFalse());  // FALSE!
+        AssertThat(list->HasNumberAt(1), IsTrue());  // TRUE!
+
+        // Is a float a valid integer?
+        AssertThat(list->HasIntAt(2), IsFalse());    // FALSE!
+        AssertThat(list->HasNumberAt(2), IsTrue());  // FALSE!
+
+        // Negative
+        AssertThat(list->HasStringAt(1), IsFalse());
+        AssertThat(list->HasIntAt(0), IsFalse());
+        AssertThat(list->HasFloatAt(1), IsFalse());
+        AssertThat(list->HasBoolAt(0), IsFalse());
+        AssertThat(list->IsNullAt(0), IsFalse());
+        AssertThat(list->HasMapAt(0), IsFalse());
+        AssertThat(list->HasObjectAt(0), IsFalse());
+        AssertThat(list->HasListAt(0), IsFalse());
+        AssertThat(list->HasObjectAt(0), IsFalse());
     });
 
     describe("Get*", []() {

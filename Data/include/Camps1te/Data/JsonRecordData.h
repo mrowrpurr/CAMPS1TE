@@ -42,6 +42,10 @@ namespace Camps1te::Data {
             auto value = GetNestedJson(path);
             return value && value->get().is_boolean();
         }
+        bool HasNumber(const char* path) const {
+            auto value = GetNestedJson(path);
+            return value && value->get().is_number();
+        }
         bool HasInt(const char* path) const {
             auto value = GetNestedJson(path);
             return value && value->get().is_number_integer();
@@ -79,6 +83,10 @@ namespace Camps1te::Data {
         bool HasBoolAt(size_t index) const {
             if (_recordData.is_null()) return false;
             return _recordData.size() > index && _recordData[index].is_boolean();
+        }
+        bool HasNumberAt(size_t index) const {
+            if (_recordData.is_null()) return false;
+            return _recordData.size() > index && _recordData[index].is_number();
         }
         bool HasIntAt(size_t index) const {
             if (_recordData.is_null()) return false;
@@ -142,7 +150,7 @@ namespace Camps1te::Data {
         }
         std::optional<RecordData*> GetObject(const char* path) const {
             auto value = GetNestedJson(path);
-            if (!value || !value->get().is_object()) return {};
+            if (!value || !(value->get().is_object() || value->get().is_array())) return {};
             return new JsonRecordData(value->get());
         }
         std::optional<std::vector<std::string>> GetStringList(const char* path) const {
