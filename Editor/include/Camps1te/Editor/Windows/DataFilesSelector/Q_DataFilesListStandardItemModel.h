@@ -9,7 +9,7 @@ class DataFilesListStandardItemModel : public QStandardItemModel {
 public:
     DataFilesListStandardItemModel(QObject* parent = nullptr) : QStandardItemModel(parent) {
         setColumnCount(2);
-        setHorizontalHeaderLabels({"Data File", "Load Order"});
+        setHorizontalHeaderLabels({"Data File", "Load Order", "Is Active"});
     }
 
     Qt::ItemFlags flags(const QModelIndex& index) const override {
@@ -44,5 +44,15 @@ public:
 public slots:
     void updateOrder() {
         for (int i = 0; i < rowCount(); ++i) item(i, 1)->setData(i, Qt::DisplayRole);
+    }
+
+    void setActive(int row, bool isActive = true) {
+        for (int i = 0; i < rowCount(); ++i) {
+            if (i == row) {
+                if (isActive && item(i, 0)->data(Qt::CheckStateRole) != Qt::Checked)
+                    item(i, 0)->setData(Qt::Checked, Qt::CheckStateRole);
+                item(i, 2)->setData(isActive, Qt::DisplayRole);
+            } else item(i, 2)->setData(false, Qt::DisplayRole);
+        }
     }
 };
