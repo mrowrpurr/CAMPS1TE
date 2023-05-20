@@ -40,6 +40,8 @@ namespace Camps1te::Data {
         virtual std::optional<bool>                     GetBool(const char* path) const       = 0;
         virtual std::optional<int>                      GetInt(const char* path) const        = 0;
         virtual std::optional<float>                    GetFloat(const char* path) const      = 0;
+        virtual std::optional<RecordData*>              GetMap(const char* path) const        = 0;
+        virtual std::optional<RecordData*>              GetList(const char* path) const       = 0;
         virtual std::optional<RecordData*>              GetObject(const char* path) const     = 0;
         virtual std::optional<std::vector<std::string>> GetStringList(const char* path) const = 0;
         virtual std::optional<std::vector<bool>>        GetBoolList(const char* path) const   = 0;
@@ -51,6 +53,8 @@ namespace Camps1te::Data {
         virtual std::optional<bool>                     GetBoolAt(size_t index) const       = 0;
         virtual std::optional<int>                      GetIntAt(size_t index) const        = 0;
         virtual std::optional<float>                    GetFloatAt(size_t index) const      = 0;
+        virtual std::optional<RecordData*>              GetMapAt(size_t index) const        = 0;
+        virtual std::optional<RecordData*>              GetListAt(size_t index) const       = 0;
         virtual std::optional<RecordData*>              GetObjectAt(size_t index) const     = 0;
         virtual std::optional<std::vector<std::string>> GetStringListAt(size_t index) const = 0;
         virtual std::optional<std::vector<bool>>        GetBoolListAt(size_t index) const   = 0;

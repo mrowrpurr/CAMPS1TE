@@ -4,9 +4,11 @@
             "type": "whatever",
             "data": {
                 "topLevelString": "hello!",
-                "topLevelInteger": 123,
+                "topLevelInteger": 69,
                 "topLevelFloat": 123.456,
+                "topLevelStringNumber": "12345",
                 "topLevelBoolean": true,
+                "topLevelFalseBoolean": false,
                 "topLevelNull": null,
                 "topLevelIntegerArray": [
                     1,
@@ -81,9 +83,9 @@
                     "few": {
                         "nested": {
                             "levels": {
-                                "nestedString": "hello!",
-                                "nestedInteger": 123,
-                                "nestedFloat": 123.456,
+                                "nestedString": "nested!",
+                                "nestedInteger": 420,
+                                "nestedFloat": 69420.123,
                                 "nestedBoolean": true,
                                 "nestedNull": null,
                                 "nestedIntegerArray": [

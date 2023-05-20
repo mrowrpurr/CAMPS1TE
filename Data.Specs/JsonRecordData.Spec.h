@@ -112,9 +112,49 @@ Describe("JsonRecordData") {
     });
 
     describe("Get*", []() {
-        //
         it("GetString", []() {
-            //
+            auto dataStore = GetJsonDataStore("DataFileForJsonRecordDataSpec.json");
+            auto data      = dataStore->GetRecord("Cool", "Record1")->GetData();
+            AssertThat(data->GetString("DoesNotExist").has_value(), IsFalse());
+            AssertThat(*data->GetString("topLevelString"), Equals("hello!"));
+            AssertThat(*data->GetString("a.few.nested.levels.nestedString"), Equals("nested!"));
+        });
+
+        it("GetBool", []() {
+            auto dataStore = GetJsonDataStore("DataFileForJsonRecordDataSpec.json");
+            auto data      = dataStore->GetRecord("Cool", "Record1")->GetData();
+            AssertThat(data->GetBool("DoesNotExist").has_value(), IsFalse());
+            AssertThat(*data->GetBool("topLevelBoolean"), IsTrue());
+            AssertThat(*data->GetBool("topFalseLevelBoolean"), IsFalse());
+            AssertThat(*data->GetBool("a.few.nested.levels.nestedBoolean"), IsTrue());
+        });
+
+        it("GetInt", []() {
+            auto dataStore = GetJsonDataStore("DataFileForJsonRecordDataSpec.json");
+            auto data      = dataStore->GetRecord("Cool", "Record1")->GetData();
+            AssertThat(data->GetInt("DoesNotExist").has_value(), IsFalse());
+            AssertThat(*data->GetInt("topLevelInteger"), Equals(69));
+            AssertThat(*data->GetInt("a.few.nested.levels.nestedInteger"), Equals(420));
+
+            // Get a Float as an Int
+            AssertThat(*data->GetInt("topLevelFloat"), Equals(123));
+
+            // Strings aren't converted to numbers magically tho
+            AssertThat(*data->GetInt("topLevelStringNumber"), Equals(0));
+        });
+
+        it("GetFloat", []() {
+            auto dataStore = GetJsonDataStore("DataFileForJsonRecordDataSpec.json");
+            auto data      = dataStore->GetRecord("Cool", "Record1")->GetData();
+            AssertThat(data->GetFloat("DoesNotExist").has_value(), IsFalse());
+            AssertThat(*data->GetFloat("topLevelFloat"), Equals(123.456f));
+            AssertThat(*data->GetFloat("a.few.nested.levels.nestedFloat"), Equals(69420.123f));
+
+            // Get an Int as a Float
+            AssertThat(*data->GetFloat("topLevelInteger"), Equals(69.0f));
+
+            // Strings aren't converted to numbers magically tho
+            AssertThat(*data->GetFloat("topLevelStringNumber"), Equals(0.0f));
         });
     });
 
