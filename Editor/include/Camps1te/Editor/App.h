@@ -3,11 +3,9 @@
 #include <QApplication>
 
 #include "Strings.h"
-#include "Windows/DataFilesSelector.h"
+#include "Windows/Q_DataFilesSelector.h"
 
 namespace Camps1te::Editor {
-
-    constexpr auto QssFilePath = "../../../../Resources/Editor/Editor.qss";
 
     class App {
         int          argc = 0;
@@ -19,6 +17,7 @@ namespace Camps1te::Editor {
             app.setStyleSheet("QLineEdit[invalid=true] { color: red; }");
             DataFilesSelectorWindow window;
             window.setWindowTitle(Strings::WindowTitle);
+            window.setMinimumWidth(600);
             window.show();
             app.exec();
             return 0;

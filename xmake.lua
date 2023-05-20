@@ -3,7 +3,7 @@ add_rules("mode.debug", "mode.release")
 set_languages("c++20")
 
 add_repositories("MrowrLib https://github.com/MrowrLib/Packages.git")
-add_requires("nlohmann_json", "_Log_", "spdlog", "string_format")
+add_requires("nlohmann_json", "_Log_", "spdlog", "string_format", "fmt")
 
 if is_host("windows") then
     set_toolchains("msvc")

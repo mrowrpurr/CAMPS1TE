@@ -1,3 +1,5 @@
+#pragma once
+
 #include <QStandardItem>
 #include <QTimer>
 
@@ -6,8 +8,8 @@ class DataFilesListStandardItemModel : public QStandardItemModel {
 
 public:
     DataFilesListStandardItemModel(QObject* parent = nullptr) : QStandardItemModel(parent) {
-        setColumnCount(3);
-        setHorizontalHeaderLabels({"Select", "Description", "Order"});
+        setColumnCount(2);
+        setHorizontalHeaderLabels({"Data File", "Load Order"});
     }
 
     Qt::ItemFlags flags(const QModelIndex& index) const override {
@@ -41,8 +43,6 @@ public:
 
 public slots:
     void updateOrder() {
-        for (int i = 0; i < rowCount(); ++i) {
-            item(i, 2)->setData(i, Qt::DisplayRole);  // Use column 2 for "Order"
-        }
+        for (int i = 0; i < rowCount(); ++i) item(i, 1)->setData(i, Qt::DisplayRole);
     }
 };

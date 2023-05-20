@@ -1,8 +1,11 @@
+add_languages("c++20")
+
 target("Camps1te.Editor")
     add_qt()
     set_kind("binary")
-    add_files("*.cpp", "../Resources/Editor.qrc", "include/**/*.h")
+    add_files("Editor.cpp", "../Resources/Editor.qrc", "include/**/Q_*.h")
     add_includedirs("include")
     add_headerfiles("include/(**).h")
-    add_packages("nlohmann_json", "_Log_", "spdlog", "string_format")
+    add_packages("nlohmann_json", "_Log_", "spdlog", "string_format", "fmt")
     add_deps("Camps1te.Data", "Camps1te.UI", "Camps1te.MapView", "Camps1te.Game")
+    add_defines("STRING_FORMAT_USE_FMT")
