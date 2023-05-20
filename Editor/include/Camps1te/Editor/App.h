@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QApplication>
+#include <QIcon>
 
 #include "Strings.h"
 #include "Windows/Q_DataFilesSelector.h"
@@ -14,6 +15,8 @@ namespace Camps1te::Editor {
 
     public:
         int Run(int argc, char* argv[]) {
+            QIcon item{":icon.png"};
+            app.setWindowIcon(item);
             app.setStyleSheet("QLineEdit[invalid=true] { color: red; }");
             DataFilesSelectorWindow window;
             window.setWindowTitle(Strings::WindowTitle);
