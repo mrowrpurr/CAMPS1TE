@@ -17,6 +17,9 @@ namespace Camps1te::Editor {
         int Run(int argc, char* argv[]) {
             QIcon item{":icon.png"};
             app.setWindowIcon(item);
+#ifdef _WIN32
+            app.setStyle("fusion");
+#endif
             app.setStyleSheet("QLineEdit[invalid=true] { color: red; }");
             DataFilesSelectorWindow window;
             window.setWindowTitle(Strings::WindowTitle);
