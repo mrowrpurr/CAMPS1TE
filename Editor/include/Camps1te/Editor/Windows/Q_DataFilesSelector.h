@@ -44,7 +44,7 @@ public:
         Configure();
         Layout();
         Events();
-        _txt_DataFolder.setText(GetDefaultFolderChooserPath().c_str());
+        _txt_DataFolder.setText(GetDefaultFolderChooserPath().string().c_str());
     }
 
 private:
@@ -127,7 +127,7 @@ private:
 
     void on_btn_SelectFolder_clicked() {
         auto dir = QFileDialog::getExistingDirectory(
-            this, tr("Choose Data Files Directory"), GetDefaultFolderChooserPath().c_str(),
+            this, "Choose Data Files Directory", GetDefaultFolderChooserPath().string().c_str(),
             QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks
         );
         if (!dir.isEmpty()) _txt_DataFolder.setText(dir);
