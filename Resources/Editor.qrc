@@ -2,7 +2,7 @@
 <RCC version="1.0">
 <qresource>
     <file alias="logo.png">Logo/Camps1te 256.png</file>
-    <file alias="icon.png">Logo/Camps1te 256.png</file>
+    <file alias="icon.png">Logo/Camps1te 512.png</file>
     <file alias="data1.json">Data/DataFile1.json</file>
 </qresource>
 </RCC>
